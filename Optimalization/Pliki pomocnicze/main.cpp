@@ -120,12 +120,12 @@ void lab2()
 {
 	double epsilon = 0.01;
 	int Nmax = 100000;
-	double s = 0.5;
+	double s = 0.3;
 	double alpha = 0.5;
 	double alpha2 = 2.0;
 	double beta = 0.5;
 
-	std::ofstream sout("g:/programowanie_projekty/c++/optimalization/optimalization/results_combined.csv");
+	std::ofstream sout("g:/programowanie_projekty/c++/optimalization/optimalization/results_combined3.csv");
 	sout << "D³ugoœæ kroku;Lp.;x1(0);x2(0);x1* (HJ);x2* (HJ);y* (HJ);Liczba wywo³añ funkcji celu (HJ);x1* (Rosen);x2* (Rosen);y* (Rosen);Liczba wywo³añ funkcji celu (Rosen)" << std::endl;
 
 	std::mt19937 gen(42);
@@ -133,8 +133,8 @@ void lab2()
 
 	for (int j = 1; j <= 100; ++j)
 	{
-		double initial_values[2] = { unif(gen), unif(gen) };
-		double initial_values2[2] = { unif(gen), unif(gen) };
+		double initial_values[2] = {unif(gen), unif(gen)};
+		double initial_values2[2] = { 0.3, 0.3 };
 		matrix x0(2, initial_values);
 		matrix s0(2, initial_values2);
 
@@ -148,8 +148,7 @@ void lab2()
 		int f_calls_rosen = solution::f_calls;
 		solution::clear_calls();
 
-		// Zapis wyników do pliku w formacie zgodnym z Excel
-		sout << s << "; "  << j << "; " << x0(0) << "; " << x0(1) << "; " << hj.x(0) << "; " << hj.x(1) << "; " << ff2T(hj.x) << "; " << f_calls_hj << "; " << rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << f_calls_rosen << std::endl; 
+		sout << s << "; "  << j << "; " << x0(0) << "; " << x0(1) << "; " << hj.x(0) << "; " << hj.x(1) << "; " << ff2T(hj.x) << f_calls_hj << "; " << rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << f_calls_rosen << std::endl; 
 	}
 
 	sout.close();
