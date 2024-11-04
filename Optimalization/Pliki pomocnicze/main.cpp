@@ -99,8 +99,6 @@ void lab1()
 		solution fibonacci = fib(ff1T, a, b, epsilon);
 		Sout_fibonacci << fibonacci.x(0) << "; " << ff1T(fibonacci.x) << solution::f_calls << std::endl;
 		solution::clear_calls();
-
-		
 	}
 	/*
 	// Metoda Fibonacciego
@@ -131,11 +129,39 @@ void lab2()
 	double alpha2 = 2.0;
 	double beta = 0.5;
 
-	/*solution hj = HJ(ff2TTest, x0, s, alpha, epsilon, Nmax);
-	cout << hj;*/
+	solution hj = HJ(ff2T, x0, s, alpha, epsilon, Nmax);
+	cout << hj;
 
-	solution rosen = Rosen(ff2TTest, x0, s0, alpha2, beta, epsilon, Nmax);
-	cout << rosen;
+	/*solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
+	cout << rosen;*/
+
+	//std::ofstream soutHj("G:/Programowanie_projekty/C++/Optimalization/Optimalization/results_hj.csv");
+	//std::ofstream soutRosen("G:/Programowanie_projekty/C++/Optimalization/Optimalization/results_rosen.csv");
+
+	//soutHj << "x; y; s; f_calls" << std::endl;
+	//soutRosen << "x; y; s; f_calls" << std::endl;
+
+	//std::mt19937 gen(42);
+	//std::uniform_real_distribution<double> unif(-1.0, 1.0);
+
+	//for (int j = 0; j < 100; ++j)
+	//{
+	//	double initial_values[2] = { unif(gen), unif(gen) };
+	//	double initial_values2[2] = { unif(gen), unif(gen) };
+	//	matrix x0(2, initial_values);
+	//	matrix s0(2, initial_values2);
+
+	//	solution hj = HJ(ff2TTest, x0, s, alpha, epsilon, Nmax);
+	//	soutHj << hj.x(0) << "; " << hj.x(1) << "; " << ff2TTest(hj.x) << "; " << solution::f_calls << std::endl;
+	//	solution::clear_calls();
+
+	//	/*solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
+	//	soutRosen << rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << solution::f_calls << std::endl;
+	//	solution::clear_calls();*/
+	//}
+
+	//soutHj.close();
+	//soutRosen.close();
 }
 
 void lab3()
