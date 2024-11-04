@@ -144,16 +144,12 @@ void lab2()
 		solution::clear_calls();
 
 		// Rosenbrock
-		solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
+		solution rosen = Rosen(ff2T, x0, s0, alpha, beta, epsilon, Nmax);
 		int f_calls_rosen = solution::f_calls;
 		solution::clear_calls();
 
 		// Zapis wyników do pliku w formacie zgodnym z Excel
-		sout << s << "; " // D³ugoœæ kroku
-			<< j << "; " // Numer wiersza
-			<< x0(0) << "; " << x0(1) << "; " // Wartoœci pocz¹tkowe x1(0), x2(0)
-			<< hj.x(0) << "; " << hj.x(1) << "; " << ff2T(hj.x) << "; " << f_calls_hj << "; " // Wyniki dla HJ
-			<< rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << f_calls_rosen << std::endl; // Wyniki dla Rosenbrocka
+		sout << s << "; "  << j << "; " << x0(0) << "; " << x0(1) << "; " << hj.x(0) << "; " << hj.x(1) << "; " << ff2T(hj.x) << "; " << f_calls_hj << "; " << rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << f_calls_rosen << std::endl; 
 	}
 
 	sout.close();
