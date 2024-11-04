@@ -120,48 +120,43 @@ void lab2()
 {
 	double epsilon = 0.01;
 	int Nmax = 100000;
-	double initial_values[] = {-0.5, 1.0};
-	double initial_values2[] = {1.0, 1.0};
-	matrix x0(2, initial_values);
-	matrix s0(2, initial_values2);
 	double s = 0.5;
 	double alpha = 0.5;
 	double alpha2 = 2.0;
 	double beta = 0.5;
 
-	solution hj = HJ(ff2T, x0, s, alpha, epsilon, Nmax);
-	cout << hj;
+	std::ofstream sout("g:/programowanie_projekty/c++/optimalization/optimalization/results_combined.csv");
+	sout << "D³ugoœæ kroku;Lp.;x1(0);x2(0);x1* (HJ);x2* (HJ);y* (HJ);Liczba wywo³añ funkcji celu (HJ);x1* (Rosen);x2* (Rosen);y* (Rosen);Liczba wywo³añ funkcji celu (Rosen)" << std::endl;
 
-	/*solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
-	cout << rosen;*/
+	std::mt19937 gen(42);
+	std::uniform_real_distribution<double> unif(-1.0, 1.0);
 
-	//std::ofstream soutHj("G:/Programowanie_projekty/C++/Optimalization/Optimalization/results_hj.csv");
-	//std::ofstream soutRosen("G:/Programowanie_projekty/C++/Optimalization/Optimalization/results_rosen.csv");
+	for (int j = 1; j <= 100; ++j)
+	{
+		double initial_values[2] = { unif(gen), unif(gen) };
+		double initial_values2[2] = { unif(gen), unif(gen) };
+		matrix x0(2, initial_values);
+		matrix s0(2, initial_values2);
 
-	//soutHj << "x; y; s; f_calls" << std::endl;
-	//soutRosen << "x; y; s; f_calls" << std::endl;
+		// Hooke-Jeeves
+		solution hj = HJ(ff2T, x0, s, alpha, epsilon, Nmax);
+		int f_calls_hj = solution::f_calls;
+		solution::clear_calls();
 
-	//std::mt19937 gen(42);
-	//std::uniform_real_distribution<double> unif(-1.0, 1.0);
+		// Rosenbrock
+		solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
+		int f_calls_rosen = solution::f_calls;
+		solution::clear_calls();
 
-	//for (int j = 0; j < 100; ++j)
-	//{
-	//	double initial_values[2] = { unif(gen), unif(gen) };
-	//	double initial_values2[2] = { unif(gen), unif(gen) };
-	//	matrix x0(2, initial_values);
-	//	matrix s0(2, initial_values2);
+		// Zapis wyników do pliku w formacie zgodnym z Excel
+		sout << s << "; " // D³ugoœæ kroku
+			<< j << "; " // Numer wiersza
+			<< x0(0) << "; " << x0(1) << "; " // Wartoœci pocz¹tkowe x1(0), x2(0)
+			<< hj.x(0) << "; " << hj.x(1) << "; " << ff2T(hj.x) << "; " << f_calls_hj << "; " // Wyniki dla HJ
+			<< rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << f_calls_rosen << std::endl; // Wyniki dla Rosenbrocka
+	}
 
-	//	solution hj = HJ(ff2TTest, x0, s, alpha, epsilon, Nmax);
-	//	soutHj << hj.x(0) << "; " << hj.x(1) << "; " << ff2TTest(hj.x) << "; " << solution::f_calls << std::endl;
-	//	solution::clear_calls();
-
-	//	/*solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
-	//	soutRosen << rosen.x(0) << "; " << rosen.x(1) << "; " << ff2T(rosen.x) << "; " << solution::f_calls << std::endl;
-	//	solution::clear_calls();*/
-	//}
-
-	//soutHj.close();
-	//soutRosen.close();
+	sout.close();
 }
 
 void lab3()
