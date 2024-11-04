@@ -315,15 +315,6 @@ double max_abs(const matrix& vec) {
 	return max_val;
 }
 
-matrix diag(const matrix& vec) {
-	int n = get_len(vec);
-	matrix diag_mat(n, n);
-	for (int i = 0; i < n; i++) {
-		diag_mat(i, i) = vec(i);
-	}
-	return diag_mat;
-}
-
 solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try {
@@ -333,17 +324,17 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		int n = get_len(x0);
 		matrix dj = ident_mat(n);   
 		matrix lambda(n, 1);        
-		matrix p(n, 1);             
+		matrix p(n, 1);
 
 		do {
 			for (int j = 0; j < n; j++) 
 			{
 				matrix step = s(j) * get_col(dj, j); 
-				solution xNew = xB.x + step;
+				solution xBNew = xB.x + step;
 
-				if (xNew.fit_fun(ff) < xB.fit_fun(ff)) 
+				if (xBNew.fit_fun(ff) < xB.fit_fun(ff)) 
 				{
-					xB = xNew;
+					xB = xBNew;
 					lambda(j) = lambda(j) + s(j);
 					s(j) = alpha * s(j);
 				}
@@ -369,24 +360,39 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 			if (changeDirection) 
 			{
-				matrix Q = dj * diag(lambda);  
+				matrix Q(n, n);
+				matrix vj(n, 1);
+				for (int i = 0; i < n; ++i) 
+				{
+					for (int j = 0; j <= i; ++j) 
+					{
+						Q(i, j) = lambda(i); 
+					}
+				}
+
+				Q = dj * Q;
+				vj = Q[0] / norm(Q[0]);
+				dj.set_col(vj, 0);
+
 				for (int j = 0; j < n; j++) 
 				{
-					matrix vj = get_col(Q, j);
+					matrix sum(n, 1);
 					for (int k = 0; k < j; k++) 
 					{
-						vj = vj - (trans(get_col(Q, k)) * get_col(dj, k)) * get_col(dj, k);
+						sum = sum + (trans(Q[j]) * dj[k]) * dj[k];
 					}
-					dj.set_col(vj / norm(vj), j);  
+					vj = Q[j] - sum;
+					dj.set_col(vj, j);
 				}
-				lambda = matrix(n, 1, 0.0);
-				p = matrix(n, 1, 0.0);
+				lambda = matrix(n, 1);
+				p = matrix(n, 1);
 				s = s0;
 			}
 
 		} while (max_abs(s) >= epsilon); 
 
 		Xopt = xB;
+		Xopt.flag = 0;
 		return Xopt;
 	}
 	catch (string ex_info)
