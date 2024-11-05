@@ -118,14 +118,14 @@ void lab1()
 
 void lab2()
 {
-	double epsilon = 0.01;
+	double epsilon = 0.00001;
 	int Nmax = 100000;
-	double s = 0.3;
+	double s = 0.1;
 	double alpha = 0.5;
 	double alpha2 = 2.0;
 	double beta = 0.5;
 
-	std::ofstream sout("g:/programowanie_projekty/c++/optimalization/optimalization/results_combined3.csv");
+	std::ofstream sout("C:/Users/jakub/Documents/Studia/Optymalizacja/Optimalization-2024/Optimalization/results_combined.csv");
 	sout << "D³ugoœæ kroku;Lp.;x1(0);x2(0);x1* (HJ);x2* (HJ);y* (HJ);Liczba wywo³añ funkcji celu (HJ);x1* (Rosen);x2* (Rosen);y* (Rosen);Liczba wywo³añ funkcji celu (Rosen)" << std::endl;
 
 	std::mt19937 gen(42);
@@ -134,7 +134,7 @@ void lab2()
 	for (int j = 1; j <= 100; ++j)
 	{
 		double initial_values[2] = {unif(gen), unif(gen)};
-		double initial_values2[2] = { 0.3, 0.3 };
+		double initial_values2[2] = { 0.1, 0.1 };
 		matrix x0(2, initial_values);
 		matrix s0(2, initial_values2);
 
@@ -144,7 +144,7 @@ void lab2()
 		solution::clear_calls();
 
 		// Rosenbrock
-		solution rosen = Rosen(ff2T, x0, s0, alpha, beta, epsilon, Nmax);
+		solution rosen = Rosen(ff2T, x0, s0, alpha2, beta, epsilon, Nmax);
 		int f_calls_rosen = solution::f_calls;
 		solution::clear_calls();
 
