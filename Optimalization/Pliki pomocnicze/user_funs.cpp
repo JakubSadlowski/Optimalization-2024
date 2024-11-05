@@ -1,5 +1,6 @@
 #include"user_funs.h"
 #define _USE_MATH_DEFINES
+#include <iomanip>
 #include<math.h>
 
 matrix ff0T(matrix x, matrix ud1, matrix ud2)
@@ -141,5 +142,55 @@ matrix ff2TTest(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
 	y = 2.5 * pow(pow(x(0), 2) - x(1), 2) + pow(1 - x(0), 2);
+	return y;
+}
+
+matrix df2(double t, matrix Y, matrix ud1, matrix ud2) {
+	//dane
+	double l = 1.;
+	double mr = 1.;
+	double mc = 5.;
+	double b = 0.5;
+	double I = 1. / 3. * mr * pow(l, 2) + mc * pow(l, 2);
+	matrix dY(2, 1);
+
+	dY(0) = Y(1);
+	dY(1) = (ud2(0) * (ud1(0) - Y(0)) + ud2(1) * (ud1(1) - Y(1)) - b * Y(1)) / I;
+
+	return dY;
+}
+
+//matrix ff2R(matrix X, matrix ud1, matrix ud2) {
+//	matrix y = 0;
+//	matrix Y0(2, 1);
+//	matrix Yref(2, new double[2] { 3.14, 0. });
+//	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, X);
+//	int n = get_len(Y[0]);
+//	for (int i = 0; i < n; ++i) {
+//		y = y + 10 * pow(Yref(0) - Y[1](i, 0), 2) + pow(Yref(1) - Y[1](i, 1), 2) + pow(X(0) * (Yref(0) - Y[1](i, 0)) + X(1) * (Yref(1) - Y[1](i, 1)), 2);
+//		std::cout << i << std::setprecision(12) << " " << Y[1](i, 0) << " " << Y[1](i, 1) << " " << y(0) << std::endl;
+//	}
+//	
+//	y = y * 0.1;
+//	return y;
+//}
+
+matrix ff2R(matrix X, matrix ud1, matrix ud2) {
+	matrix y = 0;
+	matrix Y0(2, 1);
+	matrix Yref(2, new double[2] { 3.14, 0. });
+	
+	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, X);
+	std::ofstream Sout_simulation("results_simulation_rosen.csv");
+	Sout_simulation << "t; alpha; omega" << std::endl;
+
+	int n = get_len(Y[0]);
+	for (int i = 0; i < n; ++i) {
+		y = y + 10 * pow(Yref(0) - Y[1](i, 0), 2) + pow(Yref(1) - Y[1](i, 1), 2) + pow(X(0) * (Yref(0) - Y[1](i, 0)) + X(1) * (Yref(1) - Y[1](i, 1)), 2);
+		Sout_simulation << i << "; " << setprecision(7) << Y[1](i, 0) << "; " << Y[1](i, 1) << "\n";
+	}
+
+	y = y * 0.1;
+	Sout_simulation.close();
 	return y;
 }

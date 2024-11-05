@@ -8,12 +8,16 @@ Akademia Górniczo-Hutnicza
 Data ostatniej modyfikacji: 19.09.2023
 *********************************************/
 
+#include <iomanip>
+
 #include"opt_alg.h"
 #include <random>
 
 void lab0();
 void lab1();
 void lab2();
+void lab2Table3();
+void lab2Iterations();
 void lab3();
 void lab4();
 void lab5();
@@ -23,7 +27,11 @@ int main()
 {
 	try
 	{
-		lab2();
+		lab2Iterations();
+		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
+		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
+		ff2R(x0);*/
+		//lab2Table3();
 	}
 	catch (string EX_INFO)
 	{
@@ -125,7 +133,7 @@ void lab2()
 	double alpha2 = 2.0;
 	double beta = 0.5;
 
-	std::ofstream sout("C:/Users/jakub/Documents/Studia/Optymalizacja/Optimalization-2024/Optimalization/results_combined.csv");
+	std::ofstream sout("results_combined.csv");
 	sout << "D³ugoœæ kroku;Lp.;x1(0);x2(0);x1* (HJ);x2* (HJ);y* (HJ);Liczba wywo³añ funkcji celu (HJ);x1* (Rosen);x2* (Rosen);y* (Rosen);Liczba wywo³añ funkcji celu (Rosen)" << std::endl;
 
 	std::mt19937 gen(42);
@@ -152,6 +160,64 @@ void lab2()
 	}
 
 	sout.close();
+}
+
+void lab2Table3()
+{
+	double epsilon = 0.00001;
+	int Nmax = 100000;
+	double s = 0.1;
+	double alpha = 0.5;
+	double alpha2 = 2.0;
+	double beta = 0.5;
+
+	std::mt19937 gen(42);
+	std::uniform_real_distribution<double> unif(-1.0, 1.0);
+
+	
+	double initial_values[2] = { 0.3, 0.3 };
+	double initial_values2[2] = { 0.1, 0.1 };
+	matrix x0(2, initial_values);
+	matrix s0(2, initial_values2);
+
+	// Hooke-Jeeves
+	solution hj = HJ(ff2R, x0, s, alpha, epsilon, Nmax);
+	int f_calls_hj = solution::f_calls;
+	solution::clear_calls();
+
+	// Rosenbrock
+	solution rosen = Rosen(ff2R, x0, s0, alpha2, beta, epsilon, Nmax);
+	int f_calls_rosen = solution::f_calls;
+	solution::clear_calls();
+
+	std::cout << setprecision(8) << "k1_HJ" << "; " << hj.x(0) << "; " << "k2_HJ" << "; " << hj.x(1) << "; " << "Q_HJ" << "; " << ff2R(hj.x) << "fcalls_HJ" << "; " << f_calls_hj << "; "
+	<< "k1_Rosen" << "; " << rosen.x(0) << "; " << "k2_Rosen" << "; " << rosen.x(1) << "; " << "Q_Rosen" << "; " << ff2R(rosen.x) << "fcalls_Rosen" << "; " << f_calls_rosen << std::endl;
+}
+
+void lab2Iterations()
+{
+	double epsilon = 0.00001;
+	int Nmax = 100000;
+	double s = 0.1;
+	double alpha = 0.5;
+	double alpha2 = 2.0;
+	double beta = 0.5;
+
+	double initial_values[2] = { -0.5, 0.5 };
+	double initial_values2[2] = { 0.1, 0.1 };
+	matrix x0(2, initial_values);
+	matrix s0(2, initial_values2);
+
+	// Hooke-Jeeves
+	/*solution hj = HJ(ff2T, x0, s, alpha, epsilon, Nmax);
+	cout << solution::f_calls << "\n";
+	solution::clear_calls();*/
+
+	// Rosenbrock
+	solution rosen = Rosen(ff2R, x0, s0, alpha2, beta, epsilon, Nmax);
+	int f_calls_rosen = solution::f_calls;
+	cout << solution::f_calls << "\n";
+	solution::clear_calls();
 }
 
 void lab3()

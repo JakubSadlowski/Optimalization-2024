@@ -1,5 +1,6 @@
 ﻿#include"opt_alg.h"
 #include <cmath>
+#include <iomanip>
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
@@ -238,9 +239,13 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 {
 	try
 	{
+		/*std::ofstream iterFile("HJ_iterations.csv");
+		iterFile << "Iteration; x1; x2\n";*/
+
 		solution Xopt;
 		solution x = x0;
 		solution xb;
+		//int iteration = 0;
 	
 		do
 		{
@@ -254,6 +259,10 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 					xb = x;
 					x = 2 * xb.x - tempxb.x;
 					x = HJ_trial(ff, x, s);
+
+					/*iterFile << std::fixed << setprecision(8) << iteration << "; " << xb.x(0) << "; " << xb.x(1) << "\n";
+					iteration++;*/
+
 					if (solution::f_calls > Nmax)
 						throw "Maximum number of function calls exceeded";
 				}
@@ -267,6 +276,8 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
 		} while (s >= epsilon);
+
+		//iterFile.close();
 
 		Xopt = xb;
 		return Xopt;
@@ -318,6 +329,8 @@ double max_abs(const matrix& vec) {
 solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try {
+		/*std::ofstream iterFile("Rosen_iterations.csv");
+		iterFile << "Iteration; x1; x2\n";*/
 		solution Xopt;
 		solution xB = x0;          
 		matrix s = s0;              
@@ -325,6 +338,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		matrix dj = ident_mat(n);   
 		matrix lambda(n, 1);        
 		matrix p(n, 1);
+		//int iteration = 0;
 
 		do {
 			for (int j = 0; j < n; j++) 
@@ -344,6 +358,9 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 					p(j) = p(j) + 1;
 				}
 			}
+
+			/*iterFile << std::fixed << setprecision(8) << iteration << "; " << xB.x(0) << "; " << xB.x(1) << "\n";
+			iteration++;*/
 
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
@@ -391,6 +408,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 		} while (max_abs(s) >= epsilon); 
 
+		//iterFile.close();
 		Xopt = xB;
 		Xopt.flag = 0;
 		return Xopt;
