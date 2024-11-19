@@ -422,9 +422,48 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try {
-		solution Xopt;
-		
+		solution Xopt(x0); // Obiekt wynikowy inicjalizowany punktem startowym
+		matrix x = x0;     // Punkt startowy
+		int n = ud1.size(); // Liczba ograniczeń
+		double penalty = 0.0;
+		double fx = 0.0;
+		int iter = 0;
 
+		while (iter < Nmax) {
+			// Oblicz funkcję celu z karą
+			penalty = 0.0;
+
+			// Zewnętrzna funkcja kary
+			for (int i = 0; i < n; ++i) {
+				double g_val = ud1(i, x); // Wywołanie gi(x) dla ograniczenia
+				penalty += pow(std::max(0.0, g_val), 2); // Suma kar
+			}
+
+			// Oblicz wartość funkcji celu
+			fx = Xopt.fit_fun(ff, x, ud2).value() + c * penalty;
+
+			// Sprawdzenie kryterium zakończenia
+			if (penalty < epsilon) {
+				Xopt.x = x;
+				Xopt.y = matrix(1, 1, fx); // Przypisanie wartości funkcji celu
+				Xopt.flag = 0;            // Sukces
+				return Xopt;
+			}
+
+			// Tutaj powinien być zaimplementowany algorytm optymalizacyjny
+			// Przykład: Hooke-Jeeves lub inny algorytm przeszukiwania
+			// x = optimize(ff, x, c, ud1, ud2);
+
+			// Aktualizacja współczynnika kary
+			c *= dc;
+
+			++iter;
+		}
+
+		// Jeśli przekroczono maksymalną liczbę iteracji
+		Xopt.x = x;
+		Xopt.y = matrix(1, 1, fx); // Przypisanie końcowej wartości funkcji celu
+		Xopt.flag = 1;            // Niepowodzenie
 		return Xopt;
 	}
 	catch (string ex_info)
