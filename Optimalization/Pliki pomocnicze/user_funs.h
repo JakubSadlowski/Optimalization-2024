@@ -11,3 +11,4 @@ matrix ff1R(matrix, matrix = NAN, matrix = NAN);
 matrix ff2T(matrix, matrix = NAN, matrix = NAN);
 matrix ff2TTest(matrix, matrix = NAN, matrix = NAN);
 matrix ff2R(matrix, matrix = NAN, matrix = NAN);
+matrix ff3T(matrix, matrix = NAN, matrix = NAN);

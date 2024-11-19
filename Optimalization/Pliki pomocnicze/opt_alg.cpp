@@ -423,7 +423,7 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 {
 	try {
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		
 
 		return Xopt;
 	}
@@ -438,7 +438,9 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		solution p0 = x0;
+
+		
 
 		return Xopt;
 	}
