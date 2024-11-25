@@ -421,50 +421,47 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try {
-		//solution Xopt(x0); // Obiekt wynikowy inicjalizowany punktem startowym
-		//matrix x = x0;     // Punkt startowy
-		//int n = ud1.size(); // Liczba ograniczeń
-		//double penalty = 0.0;
-		//double fx = 0.0;
+	try 
+	{
+		//int fcalls = 0;
 		//int iter = 0;
+		//double alpha = dc; // współczynnik skalowania
+		//solution x_curr = x0;
+		//solution x_prev;
 
-		//while (iter < Nmax) {
-		//	// Oblicz funkcję celu z karą
-		//	penalty = 0.0;
+		//do {
+		//	iter++;
+		//	x_prev = x_curr;
 
-		//	// Zewnętrzna funkcja kary
-		//	for (int i = 0; i < n; ++i) {
-		//		double g_val = ud1(i, x); // Wywołanie gi(x) dla ograniczenia
-		//		penalty += pow(std::max(0.0, g_val), 2); // Suma kar
+		//	// Definiowanie nowej funkcji celu z karą (zewnętrzna funkcja kary)
+		//	auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
+		//		double penalty = 0.0;
+
+		//		// Oblicz funkcję kary S(x)
+		//		for (int i = 0; i < ud1.size(); i++) {
+		//			double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
+		//			penalty += pow(std::max(0.0, g_i), 2);
+		//		}
+
+		//		// f(x) + c * S(x)
+		//		matrix result = ff(x, ud1, ud2) + c * penalty;
+		//		return result;
+		//		};
+
+		//	// Wyznaczanie nowego minimum dla funkcji celu z karą
+		//	x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+		//	fcalls += solution::f_calls; // Aktualizacja liczby wywołań funkcji celu
+
+		//	// Aktualizacja współczynnika c
+		//	c *= alpha;
+
+		//	if (fcalls > Nmax) {
+		//		throw std::string("Max fcalls");
 		//	}
 
-		//	// Oblicz wartość funkcji celu
-		//	fx = Xopt.fit_fun(ff, x, ud2).value() + c * penalty;
+		//} while ((x_curr.x - x_prev.x).norm() > epsilon);
 
-		//	// Sprawdzenie kryterium zakończenia
-		//	if (penalty < epsilon) {
-		//		Xopt.x = x;
-		//		Xopt.y = matrix(1, 1, fx); // Przypisanie wartości funkcji celu
-		//		Xopt.flag = 0;            // Sukces
-		//		return Xopt;
-		//	}
-
-		//	// Tutaj powinien być zaimplementowany algorytm optymalizacyjny
-		//	// Przykład: Hooke-Jeeves lub inny algorytm przeszukiwania
-		//	// x = optimize(ff, x, c, ud1, ud2);
-
-		//	// Aktualizacja współczynnika kary
-		//	c *= dc;
-
-		//	++iter;
-		//}
-
-		//// Jeśli przekroczono maksymalną liczbę iteracji
-		//Xopt.x = x;
-		//Xopt.y = matrix(1, 1, fx); // Przypisanie końcowej wartości funkcji celu
-		//Xopt.flag = 1;            // Niepowodzenie
-		//return Xopt;
+		//return x_curr;
 	}
 	catch (string ex_info)
 	{
@@ -488,7 +485,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 {
 	try
 	{
-		int n = 2;
+		// Kod dla n = 2
 		int iter = 1;
 		solution Xopt;
 		matrix e1(2, new double[2] { 1.0, 0.0 });
@@ -573,7 +570,8 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 			sort(minPoint, midPoint, maxPoint);
 
-			if (solution::f_calls > Nmax) throw string("Max fcalls");
+			if (solution::f_calls > Nmax) 
+				throw "Maximum number of function calls exceeded";
 
 		} while (sqrt(pow((maxPoint.x(0) - minPoint.x(0)), 2) + pow(maxPoint.x(1) - minPoint.x(1), 2)) > epsilon || sqrt(pow((midPoint.x(0) - minPoint.x(0)), 2) + pow(midPoint.x(1) - minPoint.x(1), 2)) > epsilon);
 
