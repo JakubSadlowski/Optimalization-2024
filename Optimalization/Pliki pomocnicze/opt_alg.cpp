@@ -423,9 +423,9 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 {
 	try 
 	{
-		//int fcalls = 0;
 		//int iter = 0;
 		//double alpha = dc; // współczynnik skalowania
+		//bool external = true;
 		//solution x_curr = x0;
 		//solution x_prev;
 
@@ -433,14 +433,25 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		//	iter++;
 		//	x_prev = x_curr;
 
-		//	// Definiowanie nowej funkcji celu z karą (zewnętrzna funkcja kary)
+		//	// Definiowanie nowej funkcji celu z karą
 		//	auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
 		//		double penalty = 0.0;
 
-		//		// Oblicz funkcję kary S(x)
-		//		for (int i = 0; i < ud1.size(); i++) {
-		//			double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
-		//			penalty += pow(std::max(0.0, g_i), 2);
+		//		if (external) {
+		//			// Zewnętrzna funkcja kary
+		//			for (int i = 0; i < ud1.size(); i++) {
+		//				double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
+		//				penalty += pow(std::max(0.0, g_i), 2);
+		//			}
+		//		}
+		//		else {
+		//			// Wewnętrzna funkcja kary
+		//			for (int i = 0; i < ud1.size(); i++) {
+		//				double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
+		//				if (g_i > 0) {
+		//					penalty += -1.0 / g_i; // Kary rosną w miarę zbliżania się do ograniczeń
+		//				}
+		//			}
 		//		}
 
 		//		// f(x) + c * S(x)
@@ -450,14 +461,12 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 
 		//	// Wyznaczanie nowego minimum dla funkcji celu z karą
 		//	x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
-		//	fcalls += solution::f_calls; // Aktualizacja liczby wywołań funkcji celu
 
 		//	// Aktualizacja współczynnika c
 		//	c *= alpha;
 
-		//	if (fcalls > Nmax) {
-		//		throw std::string("Max fcalls");
-		//	}
+		//	if (solution::f_calls > Nmax)
+		//		throw "Maximum number of function calls exceeded";
 
 		//} while ((x_curr.x - x_prev.x).norm() > epsilon);
 
