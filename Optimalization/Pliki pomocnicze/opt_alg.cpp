@@ -422,49 +422,49 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try {
-		solution Xopt(x0); // Obiekt wynikowy inicjalizowany punktem startowym
-		matrix x = x0;     // Punkt startowy
-		int n = ud1.size(); // Liczba ograniczeń
-		double penalty = 0.0;
-		double fx = 0.0;
-		int iter = 0;
+		//solution Xopt(x0); // Obiekt wynikowy inicjalizowany punktem startowym
+		//matrix x = x0;     // Punkt startowy
+		//int n = ud1.size(); // Liczba ograniczeń
+		//double penalty = 0.0;
+		//double fx = 0.0;
+		//int iter = 0;
 
-		while (iter < Nmax) {
-			// Oblicz funkcję celu z karą
-			penalty = 0.0;
+		//while (iter < Nmax) {
+		//	// Oblicz funkcję celu z karą
+		//	penalty = 0.0;
 
-			// Zewnętrzna funkcja kary
-			for (int i = 0; i < n; ++i) {
-				double g_val = ud1(i, x); // Wywołanie gi(x) dla ograniczenia
-				penalty += pow(std::max(0.0, g_val), 2); // Suma kar
-			}
+		//	// Zewnętrzna funkcja kary
+		//	for (int i = 0; i < n; ++i) {
+		//		double g_val = ud1(i, x); // Wywołanie gi(x) dla ograniczenia
+		//		penalty += pow(std::max(0.0, g_val), 2); // Suma kar
+		//	}
 
-			// Oblicz wartość funkcji celu
-			fx = Xopt.fit_fun(ff, x, ud2).value() + c * penalty;
+		//	// Oblicz wartość funkcji celu
+		//	fx = Xopt.fit_fun(ff, x, ud2).value() + c * penalty;
 
-			// Sprawdzenie kryterium zakończenia
-			if (penalty < epsilon) {
-				Xopt.x = x;
-				Xopt.y = matrix(1, 1, fx); // Przypisanie wartości funkcji celu
-				Xopt.flag = 0;            // Sukces
-				return Xopt;
-			}
+		//	// Sprawdzenie kryterium zakończenia
+		//	if (penalty < epsilon) {
+		//		Xopt.x = x;
+		//		Xopt.y = matrix(1, 1, fx); // Przypisanie wartości funkcji celu
+		//		Xopt.flag = 0;            // Sukces
+		//		return Xopt;
+		//	}
 
-			// Tutaj powinien być zaimplementowany algorytm optymalizacyjny
-			// Przykład: Hooke-Jeeves lub inny algorytm przeszukiwania
-			// x = optimize(ff, x, c, ud1, ud2);
+		//	// Tutaj powinien być zaimplementowany algorytm optymalizacyjny
+		//	// Przykład: Hooke-Jeeves lub inny algorytm przeszukiwania
+		//	// x = optimize(ff, x, c, ud1, ud2);
 
-			// Aktualizacja współczynnika kary
-			c *= dc;
+		//	// Aktualizacja współczynnika kary
+		//	c *= dc;
 
-			++iter;
-		}
+		//	++iter;
+		//}
 
-		// Jeśli przekroczono maksymalną liczbę iteracji
-		Xopt.x = x;
-		Xopt.y = matrix(1, 1, fx); // Przypisanie końcowej wartości funkcji celu
-		Xopt.flag = 1;            // Niepowodzenie
-		return Xopt;
+		//// Jeśli przekroczono maksymalną liczbę iteracji
+		//Xopt.x = x;
+		//Xopt.y = matrix(1, 1, fx); // Przypisanie końcowej wartości funkcji celu
+		//Xopt.flag = 1;            // Niepowodzenie
+		//return Xopt;
 	}
 	catch (string ex_info)
 	{
@@ -476,11 +476,122 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 {
 	try
 	{
+		int n = 2;
 		solution Xopt;
+		matrix e1(2, new double[2] { 1., 0. });
+		matrix e2(2, new double[2] { 0., 1. });
 		solution p0 = x0;
+		solution p1 = p0.x + s * e1;
+		solution p2 = p0.x + s * e2;
 
-		
+		solution min, mid, max;
 
+		matrix empty(2, new double[2] { 0., 0. });
+		solution centerOfGravity;
+
+		min = p0;
+		mid = p1;
+		max = p2;
+
+		auto sort = [](solution* m1, solution* m2, solution* m3) {
+
+			auto swap = [](solution* a, solution* b) {
+				solution temp(*a);
+				*a = *b;
+				*b = temp;
+				};
+
+			if (m1->y(0) > m2->y(0)) swap(m1, m2);
+			if (m1->y(0) > m3->y(0)) swap(m1, m3);
+			if (m2->y(0) > m3->y(0)) swap(m2, m3);
+
+
+			};
+
+		min.fit_fun(ff);
+		mid.fit_fun(ff);
+		max.fit_fun(ff);
+
+		sort(&min, &mid, &max);
+		do
+		{
+
+			std::cout << std::setprecision(10) << "min: x: (" << min.x(0) << ", " << min.x(1) << ") y: " << min.y(0) << " f calls: " << solution::f_calls << '\n';
+			std::cout << std::setprecision(10) << "mid: x: (" << mid.x(0) << ", " << mid.x(1) << ") y: " << mid.y(0) << " f calls: " << solution::f_calls << '\n';
+			std::cout << std::setprecision(10) << "max: x: (" << max.x(0) << ", " << max.x(1) << ") y: " << max.y(0) << " f calls: " << solution::f_calls << '\n';
+
+			//obliczanie punktu cieżkości
+			centerOfGravity.x = empty;
+			for (int i = 0; i < n; i++) // pętla do rozszerzenia na wiecej punktow narazie ciezko używać pętli do min i mid
+			{
+			}
+			centerOfGravity.x(0) = (min.x(0) + mid.x(0)) / 2;
+			centerOfGravity.x(1) = (min.x(1) + mid.x(1)) / 2;
+			//std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';
+
+			//odbicie
+			solution pMirror;
+			pMirror.x = empty;
+			pMirror.x(0) = centerOfGravity.x(0) + alpha * (centerOfGravity.x(0) - max.x(0));
+			pMirror.x(1) = centerOfGravity.x(1) + alpha * (centerOfGravity.x(1) - max.x(1));
+
+			// if 2 z rysunku, podążam zgodnie z pseudokodem
+			solution pE;
+			pE.x = empty;
+			if (pMirror.fit_fun(ff) < min.fit_fun(ff))
+			{
+				pE.x(0) = centerOfGravity.x(0) + gamma * (pMirror.x(0) - centerOfGravity.x(0));
+				pE.x(1) = centerOfGravity.x(1) + gamma * (pMirror.x(1) - centerOfGravity.x(1));
+				if (pE.fit_fun(ff) < pMirror.fit_fun(ff)) max = pE;
+				else max = pMirror;
+
+
+			}
+			else // tutaj if 1 i if 3
+			{
+				//tu akurat if 1
+				if (min.fit_fun(ff) <= pMirror.fit_fun(ff) && pMirror.fit_fun(ff) < max.fit_fun(ff)) max = pMirror;
+				else // tu obsługuję if 3
+				{
+					solution pZ;
+					pZ.x = empty;
+					pZ.x(0) = centerOfGravity.x(0) + beta * (max.x(0) - centerOfGravity.x(0));
+					pZ.x(1) = centerOfGravity.x(1) + beta * (max.x(1) - centerOfGravity.x(1));
+
+					if (pZ.fit_fun(ff) >= max.fit_fun(ff)) //redukcja
+					{
+						for (int i = 0; i < n; i++) // znowu zostawiam pętlę do potencjalnych ulepszeń
+						{
+						}
+
+						max.x(0) = delta * (max.x(0) + min.x(0));
+						max.x(1) = delta * (max.x(1) + min.x(1));
+
+						mid.x(0) = delta * (mid.x(0) + min.x(0));
+						mid.x(1) = delta * (mid.x(1) + min.x(1));
+
+					}
+					else max = pZ;
+				}
+			}
+
+
+			min.fit_fun(ff);
+			mid.fit_fun(ff);
+			max.fit_fun(ff);
+
+			sort(&min, &mid, &max);
+
+			/*iterator++;
+			cout << iterator << endl;
+			if (iterator == 200) return min;*/
+
+			if (solution::f_calls > Nmax) throw string("Max fcalls");
+
+
+		} while (sqrt(pow((max.x(0) - min.x(0)), 2) + pow(max.x(1) - min.x(1), 2)) > epsilon || sqrt(pow((mid.x(0) - min.x(0)), 2) + pow(mid.x(1) - min.x(1), 2)) > epsilon);
+
+		Xopt = min;
 		return Xopt;
 	}
 	catch (string ex_info)

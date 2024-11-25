@@ -27,7 +27,7 @@ int main()
 {
 	try
 	{
-		lab2Iterations();
+		lab3();
 		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
 		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
 		ff2R(x0);*/
@@ -222,7 +222,18 @@ void lab2Iterations()
 
 void lab3()
 {
+	matrix X0(2, new double[2] {-0.5, 0.5});
+	double s = 2;
+	double alpha = 1;
+	double beta = 0.5;
+	double gamma = 2.;
+	double delta = 0.5;
+	double epsilon = 0.0001;
+	int Nmax = 1000;
+	solution solNM;
 
+	solNM = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
+	std::cout << std::setprecision(10) << "HJ: x: (" << solNM.x(0) << ", " << solNM.x(1) << ") y: " << solNM.y(0) << " f calls: " << solution::f_calls << '\n';
 }
 
 void lab4()

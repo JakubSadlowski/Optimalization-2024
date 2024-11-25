@@ -200,3 +200,9 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2) {
 	y = sin((M_PI * sqrt(pow(x(0)/M_PI, 2) + pow(x(1) / M_PI, 2))) / (M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))));
 	return y;
 }
+
+matrix ff3Test(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0), 2) + pow(x(1), 2);
+	return y;
+}
