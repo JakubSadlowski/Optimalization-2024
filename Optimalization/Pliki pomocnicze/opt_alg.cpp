@@ -472,126 +472,112 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 	}
 }
 
+void sort(solution& min, solution& mid, solution& max) {
+	if (min.y(0) > mid.y(0)) {
+		std::swap(min, mid);
+	}
+	if (min.y(0) > max.y(0)) {
+		std::swap(min, max);
+	}
+	if (mid.y(0) > max.y(0)) {
+		std::swap(mid, max);
+	}
+}
+
 solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
 		int n = 2;
+		int iter = 1;
 		solution Xopt;
-		matrix e1(2, new double[2] { 1., 0. });
-		matrix e2(2, new double[2] { 0., 1. });
+		matrix e1(2, new double[2] { 1.0, 0.0 });
+		matrix e2(2, new double[2] { 0.0, 1.0 });
 		solution p0 = x0;
 		solution p1 = p0.x + s * e1;
 		solution p2 = p0.x + s * e2;
-
-		solution min, mid, max;
-
-		matrix empty(2, new double[2] { 0., 0. });
+		solution minPoint, midPoint, maxPoint;
 		solution centerOfGravity;
+		solution pReflection;
+		solution pExpansion;
+		solution pReduction;
+		matrix emptyMatrix(2, new double[2] { 0.0, 0.0 });
+		
+		minPoint = p0;
+		midPoint = p1;
+		maxPoint = p2;
+		minPoint.fit_fun(ff);
+		midPoint.fit_fun(ff);
+		maxPoint.fit_fun(ff);
 
-		min = p0;
-		mid = p1;
-		max = p2;
+		sort(minPoint, midPoint, maxPoint);
 
-		auto sort = [](solution* m1, solution* m2, solution* m3) {
-
-			auto swap = [](solution* a, solution* b) {
-				solution temp(*a);
-				*a = *b;
-				*b = temp;
-				};
-
-			if (m1->y(0) > m2->y(0)) swap(m1, m2);
-			if (m1->y(0) > m3->y(0)) swap(m1, m3);
-			if (m2->y(0) > m3->y(0)) swap(m2, m3);
-
-
-			};
-
-		min.fit_fun(ff);
-		mid.fit_fun(ff);
-		max.fit_fun(ff);
-
-		sort(&min, &mid, &max);
 		do
 		{
-
-			std::cout << std::setprecision(10) << "min: x: (" << min.x(0) << ", " << min.x(1) << ") y: " << min.y(0) << " f calls: " << solution::f_calls << '\n';
-			std::cout << std::setprecision(10) << "mid: x: (" << mid.x(0) << ", " << mid.x(1) << ") y: " << mid.y(0) << " f calls: " << solution::f_calls << '\n';
-			std::cout << std::setprecision(10) << "max: x: (" << max.x(0) << ", " << max.x(1) << ") y: " << max.y(0) << " f calls: " << solution::f_calls << '\n';
-
-			//obliczanie punktu cieżkości
-			centerOfGravity.x = empty;
-			for (int i = 0; i < n; i++) // pętla do rozszerzenia na wiecej punktow narazie ciezko używać pętli do min i mid
-			{
-			}
-			centerOfGravity.x(0) = (min.x(0) + mid.x(0)) / 2;
-			centerOfGravity.x(1) = (min.x(1) + mid.x(1)) / 2;
-			//std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';
+			std::cout << "Iteration: " << iter++ << "\n";
+			std::cout << std::setprecision(10) << "min: x: (" << minPoint.x(0) << ", " << minPoint.x(1) << ") y: " << minPoint.y(0) << " f calls: " << solution::f_calls << '\n';
+			std::cout << std::setprecision(10) << "mid: x: (" << midPoint.x(0) << ", " << midPoint.x(1) << ") y: " << midPoint.y(0) << " f calls: " << solution::f_calls << '\n';
+			std::cout << std::setprecision(10) << "max: x: (" << maxPoint.x(0) << ", " << maxPoint.x(1) << ") y: " << maxPoint.y(0) << " f calls: " << solution::f_calls << '\n';
+		
+			centerOfGravity.x = emptyMatrix;
+			centerOfGravity.x(0) = (minPoint.x(0) + midPoint.x(0)) / 2;
+			centerOfGravity.x(1) = (minPoint.x(1) + midPoint.x(1)) / 2;
+			std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';
 
 			//odbicie
-			solution pMirror;
-			pMirror.x = empty;
-			pMirror.x(0) = centerOfGravity.x(0) + alpha * (centerOfGravity.x(0) - max.x(0));
-			pMirror.x(1) = centerOfGravity.x(1) + alpha * (centerOfGravity.x(1) - max.x(1));
+			pReflection.x = emptyMatrix;
+			pReflection.x(0) = centerOfGravity.x(0) + alpha * (centerOfGravity.x(0) - maxPoint.x(0));
+			pReflection.x(1) = centerOfGravity.x(1) + alpha * (centerOfGravity.x(1) - maxPoint.x(1));
 
-			// if 2 z rysunku, podążam zgodnie z pseudokodem
-			solution pE;
-			pE.x = empty;
-			if (pMirror.fit_fun(ff) < min.fit_fun(ff))
+			//ekspansja			
+			if (pReflection.fit_fun(ff) < minPoint.fit_fun(ff))
 			{
-				pE.x(0) = centerOfGravity.x(0) + gamma * (pMirror.x(0) - centerOfGravity.x(0));
-				pE.x(1) = centerOfGravity.x(1) + gamma * (pMirror.x(1) - centerOfGravity.x(1));
-				if (pE.fit_fun(ff) < pMirror.fit_fun(ff)) max = pE;
-				else max = pMirror;
-
-
-			}
-			else // tutaj if 1 i if 3
-			{
-				//tu akurat if 1
-				if (min.fit_fun(ff) <= pMirror.fit_fun(ff) && pMirror.fit_fun(ff) < max.fit_fun(ff)) max = pMirror;
-				else // tu obsługuję if 3
+				pExpansion.x = emptyMatrix;
+				pExpansion.x(0) = centerOfGravity.x(0) + gamma * (pReflection.x(0) - centerOfGravity.x(0));
+				pExpansion.x(1) = centerOfGravity.x(1) + gamma * (pReflection.x(1) - centerOfGravity.x(1));
+				if (pExpansion.fit_fun(ff) < pReflection.fit_fun(ff))
 				{
-					solution pZ;
-					pZ.x = empty;
-					pZ.x(0) = centerOfGravity.x(0) + beta * (max.x(0) - centerOfGravity.x(0));
-					pZ.x(1) = centerOfGravity.x(1) + beta * (max.x(1) - centerOfGravity.x(1));
+					maxPoint = pExpansion;
+				}	
+				else 
+				{
+					maxPoint = pReflection;
+				}					
+			}
+			else 
+			{
+				if (minPoint.fit_fun(ff) <= pReflection.fit_fun(ff) && pReflection.fit_fun(ff) < maxPoint.fit_fun(ff)) 
+					maxPoint = pReflection;
+				else 
+				{
+					//redukcja
+					pReduction.x = emptyMatrix;
+					pReduction.x(0) = centerOfGravity.x(0) + beta * (maxPoint.x(0) - centerOfGravity.x(0));
+					pReduction.x(1) = centerOfGravity.x(1) + beta * (maxPoint.x(1) - centerOfGravity.x(1));
 
-					if (pZ.fit_fun(ff) >= max.fit_fun(ff)) //redukcja
+					if (pReduction.fit_fun(ff) >= maxPoint.fit_fun(ff)) 
 					{
-						for (int i = 0; i < n; i++) // znowu zostawiam pętlę do potencjalnych ulepszeń
-						{
-						}
+						maxPoint.x(0) = delta * (maxPoint.x(0) + minPoint.x(0));
+						maxPoint.x(1) = delta * (maxPoint.x(1) + minPoint.x(1));
 
-						max.x(0) = delta * (max.x(0) + min.x(0));
-						max.x(1) = delta * (max.x(1) + min.x(1));
-
-						mid.x(0) = delta * (mid.x(0) + min.x(0));
-						mid.x(1) = delta * (mid.x(1) + min.x(1));
-
+						midPoint.x(0) = delta * (midPoint.x(0) + minPoint.x(0));
+						midPoint.x(1) = delta * (midPoint.x(1) + minPoint.x(1));
 					}
-					else max = pZ;
+					else maxPoint = pReduction;
 				}
 			}
 
+			minPoint.fit_fun(ff);
+			midPoint.fit_fun(ff);
+			maxPoint.fit_fun(ff);
 
-			min.fit_fun(ff);
-			mid.fit_fun(ff);
-			max.fit_fun(ff);
-
-			sort(&min, &mid, &max);
-
-			/*iterator++;
-			cout << iterator << endl;
-			if (iterator == 200) return min;*/
+			sort(minPoint, midPoint, maxPoint);
 
 			if (solution::f_calls > Nmax) throw string("Max fcalls");
 
+		} while (sqrt(pow((maxPoint.x(0) - minPoint.x(0)), 2) + pow(maxPoint.x(1) - minPoint.x(1), 2)) > epsilon || sqrt(pow((midPoint.x(0) - minPoint.x(0)), 2) + pow(midPoint.x(1) - minPoint.x(1), 2)) > epsilon);
 
-		} while (sqrt(pow((max.x(0) - min.x(0)), 2) + pow(max.x(1) - min.x(1), 2)) > epsilon || sqrt(pow((mid.x(0) - min.x(0)), 2) + pow(mid.x(1) - min.x(1), 2)) > epsilon);
-
-		Xopt = min;
+		Xopt = minPoint;
 		return Xopt;
 	}
 	catch (string ex_info)
