@@ -221,8 +221,7 @@ void lab2Iterations()
 }
 
 void lab3()
-{
-	
+{	
 	double s = 1.0;
 	double alpha = 1;
 	double beta = 0.5;
@@ -237,12 +236,11 @@ void lab3()
 	double dcExtern = 2.0;
 	
 	matrix ud1(5);
-	//matrix ud2(cIntern);
-	matrix ud2(cExtern);
+	matrix ud2Intern(cIntern);
+	matrix ud2Extern(cExtern);
 	int Nmax = 10000;
 	solution symplexNelder;
 	solution penIn, penOut;
-	std::ofstream soutSym("sym_mn.csv");
 	std::ofstream soutPenIn("PenIn.csv");
 	std::ofstream soutPenOut("PenOut.csv");
 
@@ -252,30 +250,21 @@ void lab3()
 	for (int j = 1; j <= 100; ++j)
 	{
 		double initial_values[2] = { unif(gen), unif(gen) };
-		matrix X0(2, initial_values);
-
+		matrix X0(2, initial_values);		
 		
-		symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
-		int f_calls_Sym_NL = solution::f_calls;
-		solution::clear_calls();
-		soutSym << std::setprecision(10) << symplexNelder.x(0) << ";" << symplexNelder.x(1) << ";" << symplexNelder.y(0) << ";" << f_calls_Sym_NL << '\n';
-		
-		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2);
+		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2Intern);
 		int f_calls_penin = solution::f_calls;
 		solution::clear_calls();
 		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << penIn.y(0) << ";" << f_calls_penin << '\n';
 
-		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2);
+		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
 		int f_calls_penOut = solution::f_calls;
 		solution::clear_calls();
 		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << penOut.y(0) << ";" << f_calls_penOut << '\n';
-
 	}
 
-	soutSym.close();
 	soutPenIn.close();
 	soutPenOut.close();
-
 }
 
 void lab4()
