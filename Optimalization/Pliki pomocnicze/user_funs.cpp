@@ -201,6 +201,7 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2) {
 	return y;
 }
 
+//Zewnêtrzna funkcja kary
 matrix fT3a(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
 	if (-x(0) + 1 > 0) {
@@ -218,6 +219,7 @@ matrix fT3a(matrix x, matrix ud1, matrix ud2) {
 	return y;
 }
 
+//Wewnêtrzna funkcja kary
 matrix fT3b(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
 	if (-x(0) + 1 > 0)

@@ -419,58 +419,35 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 	}
 }
 
-solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution pen(matrix(*ff)(matrix, matrix, matrix), matrix(*penalty)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try 
 	{
-		//int iter = 0;
-		//double alpha = dc; // współczynnik skalowania
-		//bool external = true;
-		//solution x_curr = x0;
-		//solution x_prev;
+		int iter = 0;
+		solution x_curr = x0;
+		solution x_prev;
+		double alpha = dc;
 
-		//do {
-		//	iter++;
-		//	x_prev = x_curr;
+		do {
+			iter++;
+			x_prev = x_curr;
 
-		//	// Definiowanie nowej funkcji celu z karą
-		//	auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
-		//		double penalty = 0.0;
+			// Definiowanie nowej funkcji celu z karą
+			auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
+				return ff(x, ud1, ud2) + c * penalty(x, ud1, ud2);
+				};
 
-		//		if (external) {
-		//			// Zewnętrzna funkcja kary
-		//			for (int i = 0; i < ud1.size(); i++) {
-		//				double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
-		//				penalty += pow(std::max(0.0, g_i), 2);
-		//			}
-		//		}
-		//		else {
-		//			// Wewnętrzna funkcja kary
-		//			for (int i = 0; i < ud1.size(); i++) {
-		//				double g_i = ud1(i); // Funkcja ograniczenia g_i(x)
-		//				if (g_i > 0) {
-		//					penalty += -1.0 / g_i; // Kary rosną w miarę zbliżania się do ograniczeń
-		//				}
-		//			}
-		//		}
+			x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+			
 
-		//		// f(x) + c * S(x)
-		//		matrix result = ff(x, ud1, ud2) + c * penalty;
-		//		return result;
-		//		};
+			c *= alpha;
 
-		//	// Wyznaczanie nowego minimum dla funkcji celu z karą
-		//	x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+			if (solution::f_calls > Nmax)
+				throw "Maximum number of function calls exceeded";
 
-		//	// Aktualizacja współczynnika c
-		//	c *= alpha;
+		} while (norm(x_curr.x - x_prev.x) > epsilon);
 
-		//	if (solution::f_calls > Nmax)
-		//		throw "Maximum number of function calls exceeded";
-
-		//} while ((x_curr.x - x_prev.x).norm() > epsilon);
-
-		//return x_curr;
+		return x_curr;
 	}
 	catch (string ex_info)
 	{
