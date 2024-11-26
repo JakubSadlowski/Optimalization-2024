@@ -241,6 +241,7 @@ void lab3()
 	int Nmax = 10000;
 	solution symplexNelder;
 	solution penIn, penOut;
+	std::ofstream sout("x1x2.csv");
 	std::ofstream soutPenIn("PenIn.csv");
 	std::ofstream soutPenOut("PenOut.csv");
 
@@ -251,16 +252,16 @@ void lab3()
 	{
 		double initial_values[2] = { unif(gen), unif(gen) };
 		matrix X0(2, initial_values);		
-		
+		sout << X0(0) << ";" << X0(1) << "\n";
 		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2Intern);
 		int f_calls_penin = solution::f_calls;
 		solution::clear_calls();
-		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << penIn.y(0) << ";" << f_calls_penin << '\n';
+		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << sqrt(pow(penIn.x(0), 2) + pow(penIn.x(1), 2)) << penIn.y(0) << ";" << f_calls_penin << '\n';
 
 		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
 		int f_calls_penOut = solution::f_calls;
 		solution::clear_calls();
-		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << penOut.y(0) << ";" << f_calls_penOut << '\n';
+		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << sqrt(pow(penOut.x(0), 2) + pow(penOut.x(1), 2)) << penOut.y(0) << ";" << f_calls_penOut << '\n';
 	}
 
 	soutPenIn.close();
