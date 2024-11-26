@@ -424,28 +424,24 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 	try 
 	{
 		int iter = 0;
-		solution x_curr = x0;
-		solution x_prev;
+		solution Xopt(x0);
+		solution x_prev(x0);
 		double alpha = dc;
-
 		do {
 			iter++;
-			x_prev = x_curr;
+			x_prev = Xopt;
 
-			auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
-				return ff(x, ud1, ud2) + c;
-				};
-
-			x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
 			
-			c *= alpha;
+			Xopt = sym_NM(ff, Xopt.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+			
+			ud2(0) *= dc;
 
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
 
-		} while (norm(x_curr.x - x_prev.x) > epsilon);
+		} while (norm(Xopt.x - x_prev.x) > epsilon);
 
-		return x_curr;
+		return Xopt;
 	}
 	catch (string ex_info)
 	{
