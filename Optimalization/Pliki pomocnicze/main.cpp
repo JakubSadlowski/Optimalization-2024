@@ -235,18 +235,22 @@ void lab3()
 	double cExtern = 0.5;
 	double dcExtern = 2.0;
 	
+	//matrix ud1(4);
+	//matrix ud1(4.4934);
 	matrix ud1(5);
 	matrix ud2Intern(cIntern);
 	matrix ud2Extern(cExtern);
 	int Nmax = 10000;
 	solution symplexNelder;
 	solution penIn, penOut;
-	std::ofstream sout("x1x2.csv");
-	std::ofstream soutPenIn("PenIn.csv");
-	std::ofstream soutPenOut("PenOut.csv");
+	std::ofstream sout("x1x2_a3.csv");
+	std::ofstream soutPenIn("PenIn_a3.csv");
+	std::ofstream soutPenOut("PenOut_a3.csv");
 
 	std::mt19937 gen(42);
-	std::uniform_real_distribution<double> unif(-1.0, 1.0);
+	//std::uniform_real_distribution<double> unif(1.0, 2.0);
+	//std::uniform_real_distribution<double> unif(1.0, 2.12);
+	std::uniform_real_distribution<double> unif(1.0, 2.24);
 
 	for (int j = 1; j <= 100; ++j)
 	{
@@ -261,11 +265,12 @@ void lab3()
 		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
 		int f_calls_penOut = solution::f_calls;
 		solution::clear_calls();
-		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << sqrt(pow(penOut.x(0), 2) + pow(penOut.x(1), 2)) << penOut.y(0) << ";" << f_calls_penOut << '\n';
+		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << sqrt(pow(penOut.x(0), 2) + pow(penOut.x(1), 2)) << ";" << penOut.y(0) << ";" << f_calls_penOut << '\n';
 	}
 
 	soutPenIn.close();
 	soutPenOut.close();
+	sout.close();
 }
 
 void lab4()
