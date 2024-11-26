@@ -222,7 +222,7 @@ void lab2Iterations()
 
 void lab3()
 {
-	matrix X0(2, new double[2] {1.1, 1.1});
+	
 	double s = 1.0;
 	double alpha = 1;
 	double beta = 0.5;
@@ -236,22 +236,46 @@ void lab3()
 	double cExtern = 0.5;
 	double dcExtern = 2.0;
 	
-	matrix a(2, new double[2] {5.0, 5.0});
 	matrix ud1(5);
 	//matrix ud2(cIntern);
 	matrix ud2(cExtern);
 	int Nmax = 10000;
 	solution symplexNelder;
 	solution penIn, penOut;
+	std::ofstream soutSym("sym_mn.csv");
+	std::ofstream soutPenIn("PenIn.csv");
+	std::ofstream soutPenOut("PenOut.csv");
 
-	/*symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
-	std::cout << std::setprecision(10) << "HJ: x: (" << symplexNelder.x(0) << ", " << symplexNelder.x(1) << ") y: " << symplexNelder.y(0) << " f calls: " << solution::f_calls << '\n';*/
+	std::mt19937 gen(42);
+	std::uniform_real_distribution<double> unif(-1.0, 1.0);
 
-	/*penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2);
-	std::cout << std::setprecision(10) << "penIntern: x: (" << penIn.x(0) << ", " << penIn.x(1) << ") y: " << penIn.y(0) << " f calls: " << solution::f_calls << '\n';*/
+	for (int j = 1; j <= 100; ++j)
+	{
+		double initial_values[2] = { unif(gen), unif(gen) };
+		matrix X0(2, initial_values);
 
-	penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, a, ud2);
-	std::cout << std::setprecision(10) << "penExtern: x: (" << penOut.x(0) << ", " << penOut.x(1) << ") y: " << penOut.y(0) << " f calls: " << solution::f_calls << '\n';
+		
+		symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
+		int f_calls_Sym_NL = solution::f_calls;
+		solution::clear_calls();
+		soutSym << std::setprecision(10) << symplexNelder.x(0) << ";" << symplexNelder.x(1) << ";" << symplexNelder.y(0) << ";" << f_calls_Sym_NL << '\n';
+		
+		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2);
+		int f_calls_penin = solution::f_calls;
+		solution::clear_calls();
+		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << penIn.y(0) << ";" << f_calls_penin << '\n';
+
+		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2);
+		int f_calls_penOut = solution::f_calls;
+		solution::clear_calls();
+		soutPenOut << std::setprecision(10) << penOut.x(0) << ";" << penOut.x(1) << ";" << penOut.y(0) << ";" << f_calls_penOut << '\n';
+
+	}
+
+	soutSym.close();
+	soutPenIn.close();
+	soutPenOut.close();
+
 }
 
 void lab4()
