@@ -19,6 +19,7 @@ void lab2();
 void lab2Table3();
 void lab2Iterations();
 void lab3();
+void lab3Table3();
 void lab4();
 void lab5();
 void lab6();
@@ -27,7 +28,8 @@ int main()
 {
 	try
 	{
-		lab3();
+		lab3Table3();
+		//lab3();
 		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
 		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
 		ff2R(x0);*/
@@ -272,6 +274,30 @@ void lab3()
 	soutPenIn.close();
 	soutPenOut.close();
 	sout.close();
+}
+
+void lab3Table3()
+{
+	double s = 1.0;
+	double alpha = 1;
+	double beta = 0.5;
+	double gamma = 2.0;
+	double delta = 0.5;
+	double epsilon = 1e-3;
+
+	double cExtern = 0.5;
+	double dcExtern = 2.0;
+
+	matrix ud1(5);
+	matrix ud2Extern(cExtern);
+	int Nmax = 10000;
+	solution result;
+
+	matrix vw(2, new double[2]{5.0, 10.0});
+	result = pen(ff3R, vw, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
+
+	std::cout << setprecision(8) << result;
+		
 }
 
 void lab4()
