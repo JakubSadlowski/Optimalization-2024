@@ -208,15 +208,15 @@ matrix fT3a(matrix x, matrix ud1, matrix ud2) {
 	y = sin((M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) / (M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))));
 
 	if (-x(0) + 1 > 0) {
-		y = y + ud2 * pow(-x(0) + 1, 2);
+		y = y + ud2(0) * pow(-x(0) + 1, 2);
 	}
 
 	if (-x(1) + 1 > 0) {
-		y = y + ud2 * pow(-x(1) + 1, 2);
+		y = y + ud2(0) * pow(-x(1) + 1, 2);
 	}
 
-	if (norm(x) - ud1 > 0) {
-		y = y + ud2 * pow(norm(x) - ud1, 2);
+	if (norm(x) - ud1(0) > 0) {
+		y = y + ud2(0) * pow(norm(x) - ud1(0), 2);
 	}
 
 	return y;

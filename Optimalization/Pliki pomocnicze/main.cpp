@@ -222,20 +222,35 @@ void lab2Iterations()
 
 void lab3()
 {
-	matrix X0(2, new double[2] {-0.5, 0.5});
+	matrix X0(2, new double[2] {1.1, 1.1});
 	double s = 1.0;
 	double alpha = 1;
 	double beta = 0.5;
 	double gamma = 2.0;
 	double delta = 0.5;
-	double epsilon = 0.0001;
-	int Nmax = 1000;
+	double epsilon = 1e-3;
+	
+	double cIntern = 10.0;
+	double dcIntern = 0.5;
+
+	double cExtern = 0.5;
+	double dcExtern = 2.0;
+	
+	matrix a(2, new double[2] {5.0, 5.0});
+	matrix ud1(5);
+	matrix ud2(cExtern);
+	int Nmax = 10000;
 	solution symplexNelder;
+	solution penIn, penOut;
 
 	/*symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
 	std::cout << std::setprecision(10) << "HJ: x: (" << symplexNelder.x(0) << ", " << symplexNelder.x(1) << ") y: " << symplexNelder.y(0) << " f calls: " << solution::f_calls << '\n';*/
 
+	/*penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2);
+	std::cout << std::setprecision(10) << "penIntern: x: (" << penIn.x(0) << ", " << penIn.x(1) << ") y: " << penIn.y(0) << " f calls: " << solution::f_calls << '\n';*/
 
+	penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, a, cExtern);
+	std::cout << std::setprecision(10) << "penExtern: x: (" << penOut.x(0) << ", " << penOut.x(1) << ") y: " << penOut.y(0) << " f calls: " << solution::f_calls << '\n';
 }
 
 void lab4()

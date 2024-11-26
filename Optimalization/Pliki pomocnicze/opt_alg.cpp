@@ -423,24 +423,29 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 {
 	try 
 	{
-		int iter = 0;
+		int iterator = 0;
 		solution Xopt(x0);
-		solution x_prev(x0);
-		double alpha = dc;
-		do {
-			iter++;
-			x_prev = Xopt;
+		solution xPrev(x0);
+		Xopt.fit_fun(ff);
 
+		do {
+			xPrev = Xopt;
 			
-			Xopt = sym_NM(ff, Xopt.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+			Xopt = sym_NM(ff, Xopt.x, 0.5, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
 			
 			ud2(0) *= dc;
+
+			iterator++;
+			if (iterator == 1)
+				ud2(0) /= dc;
 
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
 
-		} while (norm(Xopt.x - x_prev.x) > epsilon);
+			std::cout << std::setprecision(10) << "pen: x: (" << Xopt.x(0) << ", " << Xopt.x(1) << ") y: " << Xopt.y(0) << " f calls: " << solution::f_calls << '\n';
+		} while (norm(Xopt.x - xPrev.x) >= epsilon);
 
+		Xopt.flag = 0;
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -483,9 +488,9 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 		minPoint = p0;
 		midPoint = p1;
 		maxPoint = p2;
-		minPoint.fit_fun(ff);
-		midPoint.fit_fun(ff);
-		maxPoint.fit_fun(ff);
+		minPoint.fit_fun(ff, ud1, ud2);
+		midPoint.fit_fun(ff, ud1, ud2);
+		maxPoint.fit_fun(ff, ud1, ud2);
 
 		sort(minPoint, midPoint, maxPoint);
 
@@ -499,7 +504,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			centerOfGravity.x = emptyMatrix;
 			centerOfGravity.x(0) = (minPoint.x(0) + midPoint.x(0)) / 2;
 			centerOfGravity.x(1) = (minPoint.x(1) + midPoint.x(1)) / 2;
-			std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';
+			/*std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';*/
 
 			//odbicie
 			pReflection.x = emptyMatrix;
@@ -507,12 +512,12 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			pReflection.x(1) = centerOfGravity.x(1) + alpha * (centerOfGravity.x(1) - maxPoint.x(1));
 
 			//ekspansja			
-			if (pReflection.fit_fun(ff) < minPoint.fit_fun(ff))
+			if (pReflection.fit_fun(ff, ud1, ud2) < minPoint.fit_fun(ff, ud1, ud2))
 			{
 				pExpansion.x = emptyMatrix;
 				pExpansion.x(0) = centerOfGravity.x(0) + gamma * (pReflection.x(0) - centerOfGravity.x(0));
 				pExpansion.x(1) = centerOfGravity.x(1) + gamma * (pReflection.x(1) - centerOfGravity.x(1));
-				if (pExpansion.fit_fun(ff) < pReflection.fit_fun(ff))
+				if (pExpansion.fit_fun(ff, ud1, ud2) < pReflection.fit_fun(ff, ud1, ud2))
 				{
 					maxPoint = pExpansion;
 				}	
@@ -523,7 +528,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			}
 			else 
 			{
-				if (minPoint.fit_fun(ff) <= pReflection.fit_fun(ff) && pReflection.fit_fun(ff) < maxPoint.fit_fun(ff)) 
+				if (minPoint.fit_fun(ff, ud1, ud2) <= pReflection.fit_fun(ff, ud1, ud2) && pReflection.fit_fun(ff, ud1, ud2) < maxPoint.fit_fun(ff, ud1, ud2))
 					maxPoint = pReflection;
 				else 
 				{
@@ -532,7 +537,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 					pReduction.x(0) = centerOfGravity.x(0) + beta * (maxPoint.x(0) - centerOfGravity.x(0));
 					pReduction.x(1) = centerOfGravity.x(1) + beta * (maxPoint.x(1) - centerOfGravity.x(1));
 
-					if (pReduction.fit_fun(ff) >= maxPoint.fit_fun(ff)) 
+					if (pReduction.fit_fun(ff, ud1, ud2) >= maxPoint.fit_fun(ff, ud1, ud2))
 					{
 						maxPoint.x(0) = delta * (maxPoint.x(0) + minPoint.x(0));
 						maxPoint.x(1) = delta * (maxPoint.x(1) + minPoint.x(1));
@@ -544,9 +549,9 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 				}
 			}
 
-			minPoint.fit_fun(ff);
-			midPoint.fit_fun(ff);
-			maxPoint.fit_fun(ff);
+			minPoint.fit_fun(ff, ud1, ud2);
+			midPoint.fit_fun(ff, ud1, ud2);
+			maxPoint.fit_fun(ff, ud1, ud2);
 
 			sort(minPoint, midPoint, maxPoint);
 
