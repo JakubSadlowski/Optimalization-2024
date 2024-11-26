@@ -429,15 +429,10 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		Xopt.fit_fun(ff, ud1, ud2);
 
 		do {
-			xPrev = Xopt;
-			
-			Xopt = sym_NM(ff, Xopt.x, 0.1, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
-			
+			xPrev = Xopt;			
+			Xopt = sym_NM(ff, Xopt.x, 0.1, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);		
 			ud2(0) *= dc;
-
 			iterator++;
-			if (iterator == 1)
-				ud2(0) /= dc;
 
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
