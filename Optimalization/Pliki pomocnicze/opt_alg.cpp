@@ -426,7 +426,7 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		int iterator = 0;
 		solution Xopt(x0);
 		solution xPrev(x0);
-		Xopt.fit_fun(ff, ud1, ud2);
+		
 
 		do {
 			xPrev = Xopt;
@@ -445,6 +445,7 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		} while (norm(Xopt.x - xPrev.x) >= epsilon);
 
 		Xopt.flag = 0;
+		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -498,8 +499,8 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			/*std::cout << "Iteration: " << iter++ << "\n";
 			std::cout << std::setprecision(10) << "min: x: (" << minPoint.x(0) << ", " << minPoint.x(1) << ") y: " << minPoint.y(0) << " f calls: " << solution::f_calls << '\n';
 			std::cout << std::setprecision(10) << "mid: x: (" << midPoint.x(0) << ", " << midPoint.x(1) << ") y: " << midPoint.y(0) << " f calls: " << solution::f_calls << '\n';
-			std::cout << std::setprecision(10) << "max: x: (" << maxPoint.x(0) << ", " << maxPoint.x(1) << ") y: " << maxPoint.y(0) << " f calls: " << solution::f_calls << '\n';
-		*/
+			std::cout << std::setprecision(10) << "max: x: (" << maxPoint.x(0) << ", " << maxPoint.x(1) << ") y: " << maxPoint.y(0) << " f calls: " << solution::f_calls << '\n';*/
+		
 			centerOfGravity.x = emptyMatrix;
 			centerOfGravity.x(0) = (minPoint.x(0) + midPoint.x(0)) / 2;
 			centerOfGravity.x(1) = (minPoint.x(1) + midPoint.x(1)) / 2;

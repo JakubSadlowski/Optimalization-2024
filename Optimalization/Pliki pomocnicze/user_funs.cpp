@@ -263,14 +263,14 @@ matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
 	double Dx = 0.5 * C * airDensity * S * Y(1) * abs(Y(1));
 	double Dy = 0.5 * C * airDensity * S * Y(3) * abs(Y(3));
 	double Fmx = g * Y(3) * ud1(0) * 3.14 * r * r * r;
-	double Fmy = g * Y(3) * ud1(0) * 3.14 * r * r * r;
+	double Fmy = g * Y(1) * ud1(0) * 3.14 * r * r * r;
 
 	matrix dY(4, 1);
 
 	dY(0) = Y(1);
 	dY(1) = (-Fmx - Dx) / m;
 	dY(2) = Y(3);
-	dY(3) = (-m * g - ) / m;
+	dY(3) = (-m * g - Dy - Fmy) / m;
 
 	return dY;
 }

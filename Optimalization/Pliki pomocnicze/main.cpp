@@ -248,15 +248,16 @@ void lab3()
 	std::ofstream soutPenOut("PenOut_a3.csv");
 
 	std::mt19937 gen(42);
-	//std::uniform_real_distribution<double> unif(1.0, 2.0);
-	//std::uniform_real_distribution<double> unif(1.0, 2.12);
-	std::uniform_real_distribution<double> unif(1.0, 2.24);
+	//std::uniform_real_distribution<double> unif(1.0, 4.0);
+	//std::uniform_real_distribution<double> unif(1.0, 5.0);
+	std::uniform_real_distribution<double> unif(1.0, 5.0);
 
 	for (int j = 1; j <= 100; ++j)
 	{
 		double initial_values[2] = { unif(gen), unif(gen) };
 		matrix X0(2, initial_values);		
 		sout << X0(0) << ";" << X0(1) << "\n";
+
 		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2Intern);
 		int f_calls_penin = solution::f_calls;
 		solution::clear_calls();
