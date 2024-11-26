@@ -238,6 +238,7 @@ void lab3()
 	
 	matrix a(2, new double[2] {5.0, 5.0});
 	matrix ud1(5);
+	//matrix ud2(cIntern);
 	matrix ud2(cExtern);
 	int Nmax = 10000;
 	solution symplexNelder;
@@ -249,7 +250,7 @@ void lab3()
 	/*penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2);
 	std::cout << std::setprecision(10) << "penIntern: x: (" << penIn.x(0) << ", " << penIn.x(1) << ") y: " << penIn.y(0) << " f calls: " << solution::f_calls << '\n';*/
 
-	penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, a, cExtern);
+	penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, a, ud2);
 	std::cout << std::setprecision(10) << "penExtern: x: (" << penOut.x(0) << ", " << penOut.x(1) << ") y: " << penOut.y(0) << " f calls: " << solution::f_calls << '\n';
 }
 

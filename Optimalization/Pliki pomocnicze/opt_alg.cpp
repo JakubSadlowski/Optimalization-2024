@@ -442,7 +442,6 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 			if (solution::f_calls > Nmax)
 				throw "Maximum number of function calls exceeded";
 
-			std::cout << std::setprecision(10) << "pen: x: (" << Xopt.x(0) << ", " << Xopt.x(1) << ") y: " << Xopt.y(0) << " f calls: " << solution::f_calls << '\n';
 		} while (norm(Xopt.x - xPrev.x) >= epsilon);
 
 		Xopt.flag = 0;
