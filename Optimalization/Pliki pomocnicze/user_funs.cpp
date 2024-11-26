@@ -201,6 +201,43 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2) {
 	return y;
 }
 
+matrix fT3a(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	if (-x(0) + 1 > 0) {
+		y = y + ud2 * pow(-x(0) + 1, 2);
+	}
+
+	if (-x(1) + 1 > 0) {
+		y = y + ud2 * pow(-x(1) + 1, 2);
+	}
+
+	if (norm(x) - ud1 > 0) {
+		y = y + ud2 * pow(norm(x) - ud1, 2);
+	}
+
+	return y;
+}
+
+matrix fT3b(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	if (-x(0) + 1 > 0)
+		y = 1 * exp(10);
+	else
+		y = y - ud2 / (-x(0) + 1);
+
+	if(-x(1) + 1 > 0)
+		y = 1 * exp(10);
+	else
+		y = y - ud2 / (-x(1) + 1);
+
+	if (norm(x) - ud1 > 0)
+		y = 1 * exp(10);
+	else
+		y = y - (ud2(0) / norm(x) - ud1(0));
+
+	return y;
+}
+
 matrix ff3Test(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
 	y = pow(x(0), 2) + pow(x(1), 2);
