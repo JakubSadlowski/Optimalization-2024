@@ -252,53 +252,60 @@ matrix ff3Test(matrix x, matrix ud1, matrix ud2) {
 }
 
 matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
-	//dane
-	double m = 0.6; //masa pi³ki
-	double r = 0.12; //promieñ pi³ki
-	double y0 = 100; //wysokoœæ y0
-	double g = 9.81; //przysp ziemskie
-	double C = 0.47;
-	double airDensity = 1.2; //gêstoœæ powietrza
-	double S = 3.14 * r * r;
-	double Dx = 0.5 * C * airDensity * S * Y(1) * abs(Y(1));
-	double Dy = 0.5 * C * airDensity * S * Y(3) * abs(Y(3));
-	double Fmx = g * Y(3) * ud1(0) * 3.14 * r * r * r;
-	double Fmy = g * Y(1) * ud1(0) * 3.14 * r * r * r;
 
 	matrix dY(4, 1);
 
-	dY(0) = Y(1);
-	dY(1) = (-Fmx - Dx) / m;
-	dY(2) = Y(3);
-	dY(3) = (-m * g - Dy - Fmy) / m;
+	double C = 0.47;
+	double p = 1.2;
+	double r = 0.12;
+	double S = 3.14 * r * r;
+	double m = 0.6;
+	double g = 9.81;
 
+	double Dx = 1.0 / 2.0 * C * p * S * Y(1) * abs(Y(1));
+	double Fmx = p * Y(3) * ud1(0) * S * r;
+
+	double Dy = 1.0 / 2.0 * C * p * S * Y(3) * abs(Y(3));
+	double Fmy = p * Y(1) * ud1(0) * S * r;
+
+	if (Y(2) > 0) {
+		dY(0) = Y(1);
+
+		dY(1) = (-Fmx - Dx) / m;
+
+		dY(2) = Y(3);
+
+		dY(3) = (-m * g - Dy - Fmy) / m;
+	}
+	else {
+
+		dY(0) = 0;
+
+		dY(1) = 0;
+
+		dY(2) = 0;
+
+		dY(3) = 0;
+
+	}
 	return dY;
 }
 
 matrix ff3R(matrix x, matrix ud1, matrix ud2) {
-	matrix y = 0;
-	matrix Y0(4, new double[4]{0, x(0), 100, 0});
+
+	matrix y;
+	matrix Y0(4, new double[4] {0, x(0), 100, 0});
 	matrix* Y = solve_ode(df3, 0, 0.01, 7, Y0, x(1), ud2);
-	int n = get_len(Y0);
+	int n = get_len(Y[0]);
 	int i50 = 0, i0 = 0;
-
 	for (int i = 0; i < n; i++) {
-		if (abs(Y[1](i, 2) - 50) < abs(Y[1](i50, 2)))
-			i50 = i;
-
-		if (abs(Y[1](i, 2)) < abs(Y[1](i0, 2)))
-			i0 = i;
+		if (abs(Y[1](i, 2) - 50) < abs(Y[1](i50, 2) - 50)) i50 = i;
+		if (abs(Y[1](i, 2)) < abs(Y[1](i0, 2))) i0 = i;
 	}
 	y = -Y[1](i0, 0);
 
-	if (abs(x(1)) - 15 > 0)
-		y = y + ud1 * pow(abs(x(1)) - 15, 2);
-
-	if (abs(x(0)) - 10 > 0)
-		y = y + ud1 * pow(abs(x(0)) - 10, 2);
-
-	if (abs(Y[1](i50, 0) - 5) - 0.5 > 0)
-		y = y + ud1 * pow(abs(Y[1](i50, 0) - 5) - 0.5, 2);
-
+	if (abs(x(0)) - 10 > 0) y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+	if (abs(x(1)) - 15 > 0) y = y + ud2(0) * pow(abs(x(1)) - 15, 2);
+	if (abs(Y[1](i50, 0) - 5) - 0.5 > 0) y = y + ud2(0) * pow(abs(Y[1](i50, 0) - 5) - 0.5, 2);
 	return y;
 }

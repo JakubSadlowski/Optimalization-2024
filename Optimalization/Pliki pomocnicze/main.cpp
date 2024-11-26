@@ -278,25 +278,57 @@ void lab3()
 
 void lab3Table3()
 {
-	double s = 1.0;
-	double alpha = 1;
-	double beta = 0.5;
-	double gamma = 2.0;
-	double delta = 0.5;
-	double epsilon = 1e-3;
+	// Parametry funkcji pen
+	double c = 1.0;  // Pocz¹tkowy wspó³czynnik kary
+	double dc = 2; // Wspó³czynnik skalowania kary
+	//double c = 10.0;  // Pocz¹tkowy wspó³czynnik kary
+	//double dc = 0.5; // Wspó³czynnik skalowania kary
+	double epsilon = 1e-3; // Dopuszczalny b³¹d
+	int Nmax = 10000; // Maksymalna liczba wywo³añ funkcji celu
+	// dc dla a > 1 (ma³e c), dla b < 1 (du¿e c)
+	// Punkt startowy
+	matrix x0(2, new double[2] { 1.1, 1.1 });
+	// Parametry ud1 i ud2 dla funkcji ff3Ta
+	matrix ud1(5); // ud1 zawiera a z ograniczenia g3 
+	matrix ud2(c);    // ud2 zawiera wspó³czynnik kary dla ff3Ta
 
-	double cExtern = 0.5;
-	double dcExtern = 2.0;
+	//cout << "ff: " << ff3Tb(x0, ud1, ud2) << endl;
+	//cout << "ff: " << ff3Tb(matrix(2, new double[2]{1.60007, 3.67229}), ud1, ud2) << endl;
+	//cout << "ff: " << ff3Tb(matSrix(2, new double[2]{2.15289, 2.15329}), ud1, ud2) << endl;
+	//cout << "ff: " << ff3Ta(matrix(2, new double[2]{2.15289, 2.15329}), ud1, ud2) << endl;
 
-	matrix ud1(5);
-	matrix ud2Extern(cExtern);
-	int Nmax = 10000;
-	solution result;
+	// Wywo³anie funkcji pen
+	//solution wynik = pen(ff3Tb, x0, c, dc, epsilon, Nmax, ud1, ud2);
+	//cout << norm(wynik.x) << endl;
+	// Wyœwietlenie wyników
+	//cout << wynik << endl;
+	//solution::clear_calls();
+	matrix Y0(4, new double[4] {0, 5, 100, 0});
+	matrix* Sym = solve_ode(df3, 0, 0.01, 7, Y0, 10, ud2);
 
-	matrix vw(2, new double[2]{5.0, 10.0});
-	result = pen(ff3R, vw, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
+	ofstream results_file("Sym.csv");
+	results_file << hcat(Sym[0], Sym[1]);
+	results_file.close();
 
-	std::cout << setprecision(8) << result;
+	solution::clear_calls();
+
+	matrix vw(2, new double[2] { 5.0, 8.0 });
+
+	solution wynik2 = pen(ff3R, vw, c, dc, epsilon, Nmax, ud1, ud2);
+	cout << wynik2 << endl;
+	vw = wynik2.x;
+
+	matrix Y02(4, new double[4] {0, vw(0), 100, 0});
+	matrix* Sym2 = solve_ode(df3, 0, 0.01, 7, Y02, vw(1), ud2);
+
+	ofstream results_file2("Sym2.csv");
+	results_file2 << hcat(Sym2[0], Sym2[1]);
+	results_file2.close();
+
+
+	/*matrix xTest(2, new double[2] {-3.67869, 15.0522});
+	matrix C = 0.0;
+	matrix test = ff3R(xTest, C, NULL);*/
 		
 }
 

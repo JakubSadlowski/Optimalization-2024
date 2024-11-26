@@ -426,12 +426,12 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		int iterator = 0;
 		solution Xopt(x0);
 		solution xPrev(x0);
-		
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		do {
 			xPrev = Xopt;
 			
-			Xopt = sym_NM(ff, Xopt.x, 0.5, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
+			Xopt = sym_NM(ff, Xopt.x, 0.1, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
 			
 			ud2(0) *= dc;
 
@@ -445,7 +445,6 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		} while (norm(Xopt.x - xPrev.x) >= epsilon);
 
 		Xopt.flag = 0;
-		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 	}
 	catch (string ex_info)
