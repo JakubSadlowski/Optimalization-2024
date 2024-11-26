@@ -426,7 +426,7 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 		int iterator = 0;
 		solution Xopt(x0);
 		solution xPrev(x0);
-		Xopt.fit_fun(ff);
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		do {
 			xPrev = Xopt;

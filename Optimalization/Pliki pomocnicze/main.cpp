@@ -260,7 +260,7 @@ void lab3()
 		penIn = pen(fT3a, X0, cIntern, dcIntern, epsilon, Nmax, ud1, ud2Intern);
 		int f_calls_penin = solution::f_calls;
 		solution::clear_calls();
-		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << sqrt(pow(penIn.x(0), 2) + pow(penIn.x(1), 2)) << penIn.y(0) << ";" << f_calls_penin << '\n';
+		soutPenIn << std::setprecision(10) << penIn.x(0) << ";" << penIn.x(1) << ";" << sqrt(pow(penIn.x(0), 2) + pow(penIn.x(1), 2)) << ";" << penIn.y(0) << ";" << f_calls_penin << '\n';
 
 		penOut = pen(fT3b, X0, cExtern, dcExtern, epsilon, Nmax, ud1, ud2Extern);
 		int f_calls_penOut = solution::f_calls;

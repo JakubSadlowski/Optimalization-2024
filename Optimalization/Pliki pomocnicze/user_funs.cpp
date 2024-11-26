@@ -257,12 +257,20 @@ matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
 	double r = 0.12; //promieñ pi³ki
 	double y0 = 100; //wysokoœæ y0
 	double g = 9.81; //przysp ziemskie
+	double C = 0.47;
+	double airDensity = 1.2; //gêstoœæ powietrza
+	double S = 3.14 * r * r;
+	double Dx = 0.5 * C * airDensity * S * Y(1) * abs(Y(1));
+	double Dy = 0.5 * C * airDensity * S * Y(3) * abs(Y(3));
+	double Fmx = g * Y(3) * ud1(0) * 3.14 * r * r * r;
+	double Fmy = g * Y(3) * ud1(0) * 3.14 * r * r * r;
 
-
-	matrix dY(2, 1);
+	matrix dY(4, 1);
 
 	dY(0) = Y(1);
-	//dY(1) = (ud2(0) * (ud1(0) - Y(0)) + ud2(1) * (ud1(1) - Y(1)) - b * Y(1)) / I;
+	dY(1) = (-Fmx - Dx) / m;
+	dY(2) = Y(3);
+	dY(3) = (-m * g - ) / m;
 
 	return dY;
 }
