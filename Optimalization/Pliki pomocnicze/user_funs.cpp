@@ -197,45 +197,39 @@ matrix ff2R(matrix X, matrix ud1, matrix ud2) {
 
 matrix ff3T(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
+	//Podstawowa funkcja celu
 	y = sin((M_PI * sqrt(pow(x(0)/M_PI, 2) + pow(x(1) / M_PI, 2))) / (M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))));
-	return y;
-}
 
-//Zewnêtrzna funkcja kary
-matrix fT3a(matrix x, matrix ud1, matrix ud2) {
-	matrix y;
+	// Zewnêtrzna funkcja kary
 	if (-x(0) + 1 > 0) {
-		y = y + ud2 * pow(-x(0) + 1, 2);
+		y = y + ud2(0) * pow(-x(0) + 1, 2);
 	}
-
 	if (-x(1) + 1 > 0) {
-		y = y + ud2 * pow(-x(1) + 1, 2);
+		y = y + ud2(0) * pow(-x(1) + 1, 2);
 	}
-
 	if (norm(x) - ud1 > 0) {
-		y = y + ud2 * pow(norm(x) - ud1, 2);
+		y = y + ud2(0) * pow(norm(x) - ud1(0), 2);
 	}
 
-	return y;
-}
-
-//Wewnêtrzna funkcja kary
-matrix fT3b(matrix x, matrix ud1, matrix ud2) {
-	matrix y;
-	if (-x(0) + 1 > 0)
-		y = 1 * exp(10);
-	else
-		y = y - ud2 / (-x(0) + 1);
-
-	if(-x(1) + 1 > 0)
-		y = 1 * exp(10);
-	else
-		y = y - ud2 / (-x(1) + 1);
-
-	if (norm(x) - ud1 > 0)
-		y = 1 * exp(10);
-	else
-		y = y - (ud2(0) / norm(x) - ud1(0));
+	// Wewnêtrzna funkcja kary
+	if (-x(0) + 1 > 0) {
+		y = y + 1 * exp(10);
+	}
+	else {
+		y = y - ud2(0) / (-x(0) + 1);
+	}
+	if (-x(1) + 1 > 0) {
+		y = y + 1 * exp(10);
+	}
+	else {
+		y = y - ud2(0) / (-x(1) + 1);
+	}
+	if (norm(x) - ud1(0) > 0) {
+		y = y + 1 * exp(10);
+	}
+	else {
+		y = y - (ud2(0) / (norm(x) - ud1(0)));
+	}
 
 	return y;
 }

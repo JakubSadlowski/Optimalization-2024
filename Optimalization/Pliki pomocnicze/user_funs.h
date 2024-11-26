@@ -13,5 +13,3 @@ matrix ff2TTest(matrix, matrix = NAN, matrix = NAN);
 matrix ff2R(matrix, matrix = NAN, matrix = NAN);
 matrix ff3T(matrix, matrix = NAN, matrix = NAN);
 matrix ff3Test(matrix, matrix = NAN, matrix = NAN);
-matrix fT3a(matrix, matrix, matrix);
-matrix fT3b(matrix, matrix, matrix);

@@ -419,7 +419,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 	}
 }
 
-solution pen(matrix(*ff)(matrix, matrix, matrix), matrix(*penalty)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try 
 	{
@@ -432,14 +432,12 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix(*penalty)(matrix, matri
 			iter++;
 			x_prev = x_curr;
 
-			// Definiowanie nowej funkcji celu z karą
 			auto penalized_function = [&](matrix x, matrix ud1, matrix ud2) -> matrix {
-				return ff(x, ud1, ud2) + c * penalty(x, ud1, ud2);
+				return ff(x, ud1, ud2) + c;
 				};
 
 			x_curr = sym_NM(penalized_function, x_prev.x, 1.0, 1.0, 0.5, 2.0, 0.5, epsilon, Nmax, ud1, ud2);
 			
-
 			c *= alpha;
 
 			if (solution::f_calls > Nmax)

@@ -232,8 +232,10 @@ void lab3()
 	int Nmax = 1000;
 	solution symplexNelder;
 
-	symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
-	std::cout << std::setprecision(10) << "HJ: x: (" << symplexNelder.x(0) << ", " << symplexNelder.x(1) << ") y: " << symplexNelder.y(0) << " f calls: " << solution::f_calls << '\n';
+	/*symplexNelder = sym_NM(ff3Test, X0, s, alpha, beta, gamma, delta, epsilon, Nmax);
+	std::cout << std::setprecision(10) << "HJ: x: (" << symplexNelder.x(0) << ", " << symplexNelder.x(1) << ") y: " << symplexNelder.y(0) << " f calls: " << solution::f_calls << '\n';*/
+
+
 }
 
 void lab4()
