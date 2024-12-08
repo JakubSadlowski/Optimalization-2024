@@ -28,7 +28,7 @@ int main()
 {
 	try
 	{
-		lab3Table3();
+		lab4();
 		//lab3();
 		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
 		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
@@ -334,7 +334,15 @@ void lab3Table3()
 
 void lab4()
 {
+	double a = -5.0, b = 5.0;
+	double epsilon = 1e-6;
+	int Nmax = 10000;
 
+	
+
+	// Wywo³anie funkcji golden
+	solution Xopt = golden(ff3T, a, b, epsilon, Nmax);
+	cout << Xopt.x << endl;
 }
 
 void lab5()

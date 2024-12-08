@@ -608,7 +608,45 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		double alpha = (sqrt(5.0) - 1.0) / 2.0; // (√5-1)/2
+		int i = 0;
+		solution a_i , b_i ;
+		solution c_i, d_i;
+		a_i = a;
+		b_i = b;
+
+
+		c_i = b_i.x - alpha * (b_i.x - a_i.x);
+		d_i = a_i.x + alpha * (b_i.x - a_i.x);
+		a_i.fit_fun(ff);
+		b_i.fit_fun(ff);
+		c_i.fit_fun(ff);
+		d_i.fit_fun(ff);
+		while (i < Nmax && b_i.x - a_i.x > epsilon)
+		{
+			
+			
+
+			if (c_i.fit_fun(ff) < d_i.fit_fun(ff))
+			{
+				b_i = d_i;
+				c_i = b_i.x - alpha * (b_i.x - a_i.x);
+				d_i = c_i;
+
+			}
+			else
+			{
+				a_i = c_i;
+				c_i = d_i;
+				d_i = a_i.x + alpha * (b_i.x - a_i.x);
+
+			}
+
+			i++;
+		}
+
+		Xopt.x = (a_i.x + b_i.x) / 2.0;
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		return Xopt;
 	}
