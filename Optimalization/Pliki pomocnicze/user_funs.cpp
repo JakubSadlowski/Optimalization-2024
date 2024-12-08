@@ -315,3 +315,23 @@ matrix ff4T(matrix x, matrix ud1, matrix ud2) {
 	y = pow(x(0) + 2 * x(1) - 7, 2) + pow(2 * x(0) + x(1) - 5, 2);
 	return y;
 }
+
+matrix gradient4T(matrix x, matrix ud1, matrix ud2) {
+	matrix g(2);
+	g(0) = 2 * (x(0) + 2 * x(1) - 7) + 4 * (2 * x(0) + x(1) - 5);
+	g(1) = 4 * (x(0) + 2 * x(1) - 7) + 2 * (2 * x(0) + x(1) - 5);
+	return g;
+}
+
+matrix ff4SD(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0), 2) + pow(x(1), 2);
+	return y;
+}
+
+matrix gradientSD(matrix x, matrix ud1, matrix ud2) {
+	matrix g(2);
+	g(0) = 2 * x(0);
+	g(1) = 2 * x(1);
+	return g;
+}

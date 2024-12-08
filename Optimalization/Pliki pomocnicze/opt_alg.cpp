@@ -559,12 +559,39 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+	try {
+		solution X0(x0), X1;
+		X0.fit_fun(ff, ud1, ud2);
+		matrix d(X0.x);
+		double* ab = new double[2] { 0, h0 };
+		while (true) {
+			// Compute negative gradient direction
+			d = -X0.grad(gf, ud1, ud2);
 
-		return Xopt;
+			// Check if gradient is close to zero
+			if (norm(d) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			// Update solution
+			X1.x = X0.x + h0 * d;
+			X1.fit_fun(ff, ud1, ud2);
+
+			// Check termination conditions
+			if (solution::f_calls > Nmax) {
+				X0.flag = 0;
+				break;
+			}
+			if (norm(X1.x - X0.x) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			X0 = X1;
+		}
+		delete[] ab;
+		return X0;
 	}
 	catch (string ex_info)
 	{

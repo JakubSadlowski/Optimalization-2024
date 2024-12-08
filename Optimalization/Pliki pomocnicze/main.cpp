@@ -28,8 +28,7 @@ int main()
 {
 	try
 	{
-		lab3Table3();
-		//lab3();
+		lab4();
 		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
 		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
 		ff2R(x0);*/
