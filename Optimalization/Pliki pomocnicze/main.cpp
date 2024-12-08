@@ -333,17 +333,15 @@ void lab3Table3()
 
 void lab4()
 {
-	double epsilon = 1e-3;    // Dok³adnoœæ
-	int Nmax = 1000;         // Maksymalna liczba wywo³añ funkcji
-	double h0 = 0.3;        // Sta³a d³ugoœæ kroku
+	double epsilon = 1e-3;   
+	int Nmax = 1000;         
+	double h0 = 0.3;        
 
 	matrix x0(2, new double[2] { 4.0, 4.0 });
 
-	// Wywo³anie metody SD
-	solution::clear_calls();  // Zerowanie liczników wywo³añ
+	solution::clear_calls();  
 	solution opt = SD(ff4SD, gradientSD, x0, h0, epsilon, Nmax);
 
-	// Wyœwietlenie wyników
 	cout << "Punkt startowy: \n" << x0 << endl;
 	cout << "Wynik optymalizacji:\n" << opt << endl;
 }

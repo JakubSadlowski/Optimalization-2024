@@ -312,7 +312,7 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2) {
 
 matrix ff4T(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
-	y = pow(x(0) + 2 * x(1) - 7, 2) + pow(2 * x(0) + x(1) - 5, 2);
+	y = pow(x(0) + 2.0 * x(1) - 7.0, 2) + pow(2.0 * x(0) + x(1) - 5.0, 2);
 	return y;
 }
 
