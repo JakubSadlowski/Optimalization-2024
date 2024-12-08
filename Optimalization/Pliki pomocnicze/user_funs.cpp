@@ -309,3 +309,9 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2) {
 	if (abs(Y[1](i50, 0) - 5) - 0.5 > 0) y = y + ud2(0) * pow(abs(Y[1](i50, 0) - 5) - 0.5, 2);
 	return y;
 }
+
+matrix ff4T(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0) + 2 * x(1) - 7, 2) + pow(2 * x(0) + x(1) - 5, 2);
+	return y;
+}

@@ -489,16 +489,10 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 		sort(minPoint, midPoint, maxPoint);
 
 		do
-		{
-			/*std::cout << "Iteration: " << iter++ << "\n";
-			std::cout << std::setprecision(10) << "min: x: (" << minPoint.x(0) << ", " << minPoint.x(1) << ") y: " << minPoint.y(0) << " f calls: " << solution::f_calls << '\n';
-			std::cout << std::setprecision(10) << "mid: x: (" << midPoint.x(0) << ", " << midPoint.x(1) << ") y: " << midPoint.y(0) << " f calls: " << solution::f_calls << '\n';
-			std::cout << std::setprecision(10) << "max: x: (" << maxPoint.x(0) << ", " << maxPoint.x(1) << ") y: " << maxPoint.y(0) << " f calls: " << solution::f_calls << '\n';*/
-		
+		{		
 			centerOfGravity.x = emptyMatrix;
 			centerOfGravity.x(0) = (minPoint.x(0) + midPoint.x(0)) / 2;
 			centerOfGravity.x(1) = (minPoint.x(1) + midPoint.x(1)) / 2;
-			/*std::cout << std::setprecision(10) << "centerOfGravity: x: (" << centerOfGravity.x(0) << ", " << centerOfGravity.x(1) << ") y: " << centerOfGravity.y(0) << " f calls: " << solution::f_calls << '\n';*/
 
 			//odbicie
 			pReflection.x = emptyMatrix;
