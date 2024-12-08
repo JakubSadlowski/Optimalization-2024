@@ -559,12 +559,46 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+	try {
+		//int iteration = 0;
+		solution X0(x0), X1;
+		X0.fit_fun(ff);
+		matrix d(X0.x);
+		double* ab = new double[2] { 0, h0 };
 
-		return Xopt;
+		while(true) {
+			d = -X0.grad(gf);
+
+			// Check if gradient is close to zero
+			if (norm(d) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			X1.x = X0.x + h0 * d;
+
+			/*cout << "x(" << iteration << ") = [" << X0.x(0) << ", " << X0.x(1) << "] - "
+				<< h0 << "[" << -d(0) << ", " << -d(1) << "] = [" << X1.x(0) << ", " << X1.x(1) << "]" << endl;*/
+
+			X1.fit_fun(ff);
+
+			if (solution::f_calls > Nmax) {
+				X0.flag = 0;
+				throw "Maximum number of function calls exceeded";
+			}
+
+			if (norm(X1.x - X0.x) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			X0 = X1;
+			//iteration++;
+		}
+
+		delete[] ab;
+		X0.flag = 1;
+		return X0;
 	}
 	catch (string ex_info)
 	{
@@ -574,12 +608,43 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 
 solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+	try {
+		solution X0(x0), X1;
+		X0.fit_fun(ff);
+		matrix d(X0.x), g0, g1;
+		double beta;
+		double* ab = new double[2] { 0, h0 };
+		g0 = X0.grad(gf);
+		d = -g0;
 
-		return Xopt;
+		while(true) {
+			X1.x = X0.x + h0 * d;
+			X1.fit_fun(ff);
+
+			if (solution::f_calls > Nmax) {
+				X0.flag = 0;
+				throw "Maximum number of function calls exceeded";
+			}
+
+			if (norm(X1.x - X0.x) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			g1 = X1.grad(gf);
+
+			// Compute beta using Fletcher-Reeves formula
+			beta = pow(norm(g1), 2) / pow(norm(g0), 2);
+
+			// Update direction
+			d = -g1 + beta * d;
+
+			X0 = X1;
+			g0 = g1;
+		}
+
+		delete[] ab;
+		return X0;
 	}
 	catch (string ex_info)
 	{
@@ -590,12 +655,41 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
 	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+	try {
+		solution X0(x0), X1;
+		X0.fit_fun(ff, ud1, ud2);
+		matrix d(X0.x);
+		double* ab = new double[2] { 0, h0 };
 
-		return Xopt;
+		while (true) {
+			// Compute Newton direction using Hessian
+			matrix H = X0.hess(Hf, ud1, ud2);
+			matrix g = X0.grad(gf, ud1, ud2);
+			d = -inv(H) * g;
+
+			if (norm(d) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			X1.x = X0.x + h0 * d;
+			X1.fit_fun(ff, ud1, ud2);
+
+			if (solution::f_calls > Nmax) {
+				X0.flag = 0;
+				throw "Maximum number of function calls exceeded";
+			}
+
+			if (norm(X1.x - X0.x) < epsilon) {
+				X0.flag = 1;
+				break;
+			}
+
+			X0 = X1;
+		}
+
+		delete[] ab;
+		return X0;
 	}
 	catch (string ex_info)
 	{

@@ -28,8 +28,7 @@ int main()
 {
 	try
 	{
-		lab3Table3();
-		//lab3();
+		lab4();
 		//matrix x0(2, new double[]{ 2.8731934, 4.8817139 });
 		/*matrix x0(2, new double[] { 2.8731868, 4.8817043 });
 		ff2R(x0);*/
@@ -334,6 +333,18 @@ void lab3Table3()
 
 void lab4()
 {
+	double epsilon = 1e-3;   
+	int Nmax = 1000;         
+	double h0 = 0.3;        
+
+	matrix x0(2, new double[2] { 4.0, 4.0 });
+	//matrix x0(2, new double[2] { 10.0, 4.0 });
+
+	solution::clear_calls();  
+	solution opt = SD(ff4SD, gradientSD, x0, h0, epsilon, Nmax);
+
+	cout << "Punkt startowy: \n" << x0 << endl;
+	cout << "Wynik optymalizacji:\n" << opt << endl;
 
 }
 
