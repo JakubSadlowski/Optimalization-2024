@@ -335,3 +335,22 @@ matrix gradientSD(matrix x, matrix ud1, matrix ud2) {
 	g(1) = 2 * x(1);
 	return g;
 }
+
+matrix ff4Newton(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0), 2) + pow(x(1), 2) - 40 / (pow(x(0), 2) + pow(x(1), 2) + 1);
+	return y;
+}
+
+matrix gradientNewton(matrix x, matrix ud1, matrix ud2) {
+	matrix g(2, 1);
+	double denominator = pow(pow(x(0), 2) + pow(x(1), 2) + 1, 2);
+
+	// Derivative for x(0)
+	g(0) = 2 * x(0) + 80 * x(0) / denominator;
+
+	// Derivative for x(1)
+	g(1) = 2 * x(1) + 80 * x(1) / denominator;
+
+	return g;
+}

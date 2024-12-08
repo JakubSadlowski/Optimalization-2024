@@ -610,16 +610,16 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 {
 	try {
 		solution X0(x0), X1;
-		X0.fit_fun(ff, ud1, ud2);
+		X0.fit_fun(ff);
 		matrix d(X0.x), g0, g1;
 		double beta;
 		double* ab = new double[2] { 0, h0 };
-		g0 = X0.grad(gf, ud1, ud2);
+		g0 = X0.grad(gf);
 		d = -g0;
 
 		while(true) {
 			X1.x = X0.x + h0 * d;
-			X1.fit_fun(ff, ud1, ud2);
+			X1.fit_fun(ff);
 
 			if (solution::f_calls > Nmax) {
 				X0.flag = 0;
@@ -631,7 +631,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 				break;
 			}
 
-			g1 = X1.grad(gf, ud1, ud2);
+			g1 = X1.grad(gf);
 
 			// Compute beta using Fletcher-Reeves formula
 			beta = pow(norm(g1), 2) / pow(norm(g0), 2);
