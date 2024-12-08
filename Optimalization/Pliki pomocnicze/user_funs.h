@@ -19,5 +19,6 @@ matrix fT3b(matrix, matrix = NAN, matrix = NAN);
 matrix df3(double, matrix, matrix = NAN, matrix = NAN);
 matrix ff3R(matrix, matrix = NAN, matrix = NAN);
 matrix ff4T(matrix, matrix = NAN, matrix = NAN);
+matrix gradient4T(matrix, matrix = NAN, matrix = NAN);
 matrix ff4SD(matrix, matrix = NAN, matrix = NAN);
 matrix gradientSD(matrix, matrix = NAN, matrix = NAN);

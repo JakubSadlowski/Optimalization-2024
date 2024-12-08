@@ -330,7 +330,7 @@ matrix ff4SD(matrix x, matrix ud1, matrix ud2) {
 }
 
 matrix gradientSD(matrix x, matrix ud1, matrix ud2) {
-	matrix g(2);
+	matrix g(2, 1);
 	g(0) = 2 * x(0);
 	g(1) = 2 * x(1);
 	return g;
