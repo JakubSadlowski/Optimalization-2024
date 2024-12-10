@@ -583,12 +583,12 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			// expansion returns a solution with a 2x1 matrix containing interval bounds
 			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
 			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
 			return y;
 			};
 
 		do {
-			d = gf(xNext.x, ud1, ud2);
+			matrix d = xNext.grad(gf);
 			d = d * -1;
 			h = calculateH(h, d, xNext.x);
 
@@ -643,7 +643,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			// expansion returns a solution with a 2x1 matrix containing interval bounds
 			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
 			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
 			return y;
 			};
 
@@ -656,7 +656,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 				throw string("Max fcalls");
 			}
 
-			g1 = gf(xNext.x, ud1, ud2);
+			matrix g1 = xNext.grad(gf);
 			beta = pow(norm(g1), 2) / pow(norm(g0), 2);  // Fletcher-Reeves
 			d = -g1 + beta * d;
 			g0 = g1;
@@ -703,13 +703,13 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 			// expansion returns a solution with a 2x1 matrix containing interval bounds
 			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
 			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
 			return y;
 			};
 
 		do {
-			matrix H = xNext.hess(Hf, ud1, ud2);
-			matrix g = xNext.grad(gf, ud1, ud2);
+			matrix H = xNext.hess(Hf);
+			matrix g = xNext.grad(gf);
 			d = -inv(H) * g;
 
 			h = calculateH(h, d, xNext.x);

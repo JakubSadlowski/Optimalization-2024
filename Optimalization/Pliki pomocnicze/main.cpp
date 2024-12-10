@@ -353,11 +353,12 @@ void lab4()
 
 	// Fixed step h1
 	try {
-		solution result = SD(ff4T, gf4T, x0, h1, epsilon, Nmax, NULL, NULL);
+		solution result = SD(ff4T, gf4T, x0, h1, epsilon, Nmax);
 		std::cout << "Fixed step (h = 0.05):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -366,11 +367,12 @@ void lab4()
 
 	// Fixed step h2
 	try {
-		solution result = SD(ff4T, gf4T, x0, h2, epsilon, Nmax, NULL, NULL);
+		solution result = SD(ff4T, gf4T, x0, h2, epsilon, Nmax);
 		std::cout << "\nFixed step (h = 0.12):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -379,11 +381,12 @@ void lab4()
 
 	// Variable step
 	try {
-		solution result = SD(ff4T, gf4T, x0, h_var, epsilon, Nmax, NULL, NULL);
+		solution result = SD(ff4T, gf4T, x0, h_var, epsilon, Nmax);
 		std::cout << "\nVariable step:\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -395,11 +398,12 @@ void lab4()
 
 	// Fixed step h1
 	try {
-		solution result = CG(ff4T, gf4T, x0, h1, epsilon, Nmax, NULL, NULL);
+		solution result = CG(ff4T, gf4T, x0, h1, epsilon, Nmax);
 		std::cout << "Fixed step (h = 0.05):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -408,11 +412,12 @@ void lab4()
 
 	// Fixed step h2
 	try {
-		solution result = CG(ff4T, gf4T, x0, h2, epsilon, Nmax, NULL, NULL);
+		solution result = CG(ff4T, gf4T, x0, h2, epsilon, Nmax);
 		std::cout << "\nFixed step (h = 0.12):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -421,11 +426,12 @@ void lab4()
 
 	// Variable step
 	try {
-		solution result = CG(ff4T, gf4T, x0, h_var, epsilon, Nmax, NULL, NULL);
+		solution result = CG(ff4T, gf4T, x0, h_var, epsilon, Nmax);
 		std::cout << "\nVariable step:\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -437,11 +443,13 @@ void lab4()
 
 	// Fixed step h1
 	try {
-		solution result = Newton(ff4T, gf4T, hf4T, x0, h1, epsilon, Nmax, NULL, NULL);
+		solution result = Newton(ff4T, gf4T, hf4T, x0, h1, epsilon, Nmax);
 		std::cout << "Fixed step (h = 0.05):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
+		std::cout << "hcalls: " << solution::H_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -450,11 +458,13 @@ void lab4()
 
 	// Fixed step h2
 	try {
-		solution result = Newton(ff4T, gf4T, hf4T, x0, h2, epsilon, Nmax, NULL, NULL);
+		solution result = Newton(ff4T, gf4T, hf4T, x0, h2, epsilon, Nmax);
 		std::cout << "\nFixed step (h = 0.12):\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
 		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
+		std::cout << "hcalls: " << solution::H_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
@@ -463,11 +473,13 @@ void lab4()
 
 	// Variable step
 	try {
-		solution result = Newton(ff4T, gf4T, hf4T, x0, h_var, epsilon, Nmax, NULL, NULL);
+		solution result = Newton(ff4T, gf4T, hf4T, x0, h_var, epsilon, Nmax);
 		std::cout << "\nVariable step:\n";
 		std::cout << "x = " << result.x(0) << ", y = " << result.x(1) << "\n";
 		std::cout << "f(x,y) = " << result.y << "\n";
-		std::cout << "Function calls: " << solution::f_calls << "\n";
+		std::cout << "fcalls: " << solution::f_calls << "\n";
+		std::cout << "gcalls: " << solution::g_calls << "\n";
+		std::cout << "hcalls: " << solution::H_calls << "\n";
 	}
 	catch (std::string ex) {
 		std::cout << "Error: " << ex << "\n";
