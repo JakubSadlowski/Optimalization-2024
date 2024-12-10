@@ -354,3 +354,9 @@ matrix gradientNewton(matrix x, matrix ud1, matrix ud2) {
 
 	return g;
 }
+
+matrix ff4Golden(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = x + 1 / pow(x, 2);
+	return y;
+}
