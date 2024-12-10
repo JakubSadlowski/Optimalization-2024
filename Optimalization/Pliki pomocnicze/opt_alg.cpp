@@ -557,6 +557,30 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	}
 }
 
+// Separate method for calculating step size
+double calculateStepSize(bool constH, matrix(*ff)(matrix, matrix, matrix), int Nmax,
+	double hPrev, const matrix& dPrev, const matrix& xPrev) {
+	if (constH) return hPrev;
+
+	// Create a 2x2 matrix for ud
+	matrix ud(2, 2, 0.0);
+
+	// Safely check matrix sizes before accessing
+	if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
+		get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
+		ud(0, 0) = xPrev(0, 0);
+		ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
+		ud(1, 0) = dPrev(0, 0);
+		ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
+	}
+
+	// expansion returns a solution with a 2x1 matrix containing interval bounds
+	solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
+
+	// use the interval bounds directly from exp.x
+	return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
+}
+
 solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
 	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2) {
 	try {
@@ -567,37 +591,25 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		x.x = x0;
 		xNext.x = x0;
 		int i = 0;
-		d = gf(x0, NULL, NULL);
-		d = d * -1;
-		bool constH = h0 != 0.;
-
-		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
-			if (constH) return hPrev;
-
-			matrix ud(2, 2);
-			ud(0, 0) = xPrev(0);
-			ud(0, 1) = xPrev(1);
-			ud(1, 0) = dPrev(0);
-			ud(1, 1) = dPrev(1);
-
-			// expansion returns a solution with a 2x1 matrix containing interval bounds
-			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
-			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
-			return y;
-			};
+		d = gf(x0, matrix(1, 1, 0.0), matrix(1, 1, 0.0)); // Pass null matrices as matrix(1,1,0.0)
+		d = -d; // Use matrix negation operator
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else 
+			constH = true;
 
 		do {
 			matrix d = xNext.grad(gf);
-			d = d * -1;
-			h = calculateH(h, d, xNext.x);
-
+			d = -d; // Use matrix negation operator
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);
 			x = xNext;
 			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
 				throw string("Max fcalls");
 			}
+
 			i++;
 			if (i == 15) {
 				Xopt = xNext;
@@ -634,18 +646,25 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
 			if (constH) return hPrev;
 
-			matrix ud(2, 2);
-			ud(0, 0) = xPrev(0);
-			ud(0, 1) = xPrev(1);
-			ud(1, 0) = dPrev(0);
-			ud(1, 1) = dPrev(1);
+			// Create a 2x2 matrix for ud
+			matrix ud(2, 2, 0.0);
+
+			// Safely check matrix sizes before accessing
+			if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
+				get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
+				ud(0, 0) = xPrev(0, 0);
+				ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
+				ud(1, 0) = dPrev(0, 0);
+				ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
+			}
 
 			// expansion returns a solution with a 2x1 matrix containing interval bounds
-			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
+			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
+
 			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
-			return y;
-			};
+			return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
+		};
+
 
 		do {
 			h = calculateH(h, d, xNext.x);
@@ -694,18 +713,25 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
 			if (constH) return hPrev;
 
-			matrix ud(2, 2);
-			ud(0, 0) = xPrev(0);
-			ud(0, 1) = xPrev(1);
-			ud(1, 0) = dPrev(0);
-			ud(1, 1) = dPrev(1);
+			// Create a 2x2 matrix for ud
+			matrix ud(2, 2, 0.0);
+
+			// Safely check matrix sizes before accessing
+			if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
+				get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
+				ud(0, 0) = xPrev(0, 0);
+				ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
+				ud(1, 0) = dPrev(0, 0);
+				ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
+			}
 
 			// expansion returns a solution with a 2x1 matrix containing interval bounds
-			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
+			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
+
 			// use the interval bounds directly from exp.x
-			const auto y = golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, NULL, ud).x(0);
-			return y;
-			};
+			return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
+		};
+
 
 		do {
 			matrix H = xNext.hess(Hf);

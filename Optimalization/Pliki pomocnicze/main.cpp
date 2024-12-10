@@ -334,8 +334,8 @@ void lab3Table3()
 void lab4()
 {
 	matrix x0(2, 1);    // Starting point
-	x0(0) = 0;
-	x0(1) = 0;
+	x0(0) = 5;
+	x0(1) = 5;
 	double epsilon = 1e-3;
 	int Nmax = 1000;
 
