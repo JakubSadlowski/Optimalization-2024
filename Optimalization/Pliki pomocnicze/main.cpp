@@ -340,11 +340,19 @@ void lab4()
 	matrix x0(2, new double[2] { 4.0, 4.0 });
 	//matrix x0(2, new double[2] { 10.0, 4.0 });
 
-	solution::clear_calls();  
+	/*solution::clear_calls();  
 	solution opt = SD(ff4SD, gradientSD, x0, h0, epsilon, Nmax);
 
-	cout << "Punkt startowy: \n" << x0 << endl;
-	cout << "Wynik optymalizacji:\n" << opt << endl;
+	std::cout << "Punkt startowy: \n" << x0 << endl;
+	std::cout << "Wynik optymalizacji:\n" << opt << endl;*/
+
+	// Golden test
+	double a = 1.0;
+	double b = 2.0;
+	double epsilon2 = 1e-2;
+	solution::clear_calls();
+	solution goldenTest = golden(ff4Golden, a, b, epsilon2, Nmax);
+	std::cout << goldenTest;
 
 }
 

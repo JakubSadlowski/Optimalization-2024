@@ -702,9 +702,49 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		double alpha = (sqrt(5.0) - 1.0) / 2.0;
+		solution Xa(a);
+		solution Xb(b);
+		solution Xc(b - alpha * (b - a));
+		solution Xd(a + alpha * (b - a));
 
-		return Xopt;
+		matrix fc = Xc.fit_fun(ff, ud1, ud2);
+		matrix fd = Xd.fit_fun(ff, ud1, ud2);
+
+		while (true)
+		{
+			if (solution::f_calls > Nmax)
+			{
+				Xopt = Xc; 
+				Xopt.flag = 0; 
+				return Xopt;
+			}
+
+			if (abs(Xb.x() - Xa.x()) < epsilon)
+			{
+				Xopt.x = (Xa.x + Xb.x) / 2.0;
+				Xopt.y = Xopt.fit_fun(ff, ud1, ud2); 
+				Xopt.flag = 1; 
+				return Xopt;
+			}
+
+			if (m2d(fc) < m2d(fd))
+			{
+				Xb = Xd;
+				Xd = Xc;
+				fd = fc;
+				Xc.x = Xb.x - alpha * (Xb.x - Xa.x);
+				fc = Xc.fit_fun(ff, ud1, ud2);
+			}
+			else
+			{
+				Xa = Xc;
+				Xc = Xd;
+				fc = fd;
+				Xd.x = Xa.x + alpha * (Xb.x - Xa.x);
+				fd = Xd.fit_fun(ff, ud1, ud2);
+			}
+		}
 	}
 	catch (string ex_info)
 	{
