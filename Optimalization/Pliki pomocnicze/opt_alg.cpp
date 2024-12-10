@@ -557,142 +557,181 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	}
 }
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2) {
 	try {
-		//int iteration = 0;
-		solution X0(x0), X1;
-		X0.fit_fun(ff);
-		matrix d(X0.x);
-		double* ab = new double[2] { 0, h0 };
+		solution Xopt;
+		solution x, xNext;
+		matrix d;
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		d = gf(x0, NULL, NULL);
+		d = d * -1;
+		bool constH = h0 != 0.;
 
-		while(true) {
-			d = -X0.grad(gf);
+		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
+			if (constH) return hPrev;
 
-			// Check if gradient is close to zero
-			if (norm(d) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
+			matrix ud(2, 2);
+			ud(0, 0) = xPrev(0);
+			ud(0, 1) = xPrev(1);
+			ud(1, 0) = dPrev(0);
+			ud(1, 1) = dPrev(1);
 
-			X1.x = X0.x + h0 * d;
+			// expansion returns a solution with a 2x1 matrix containing interval bounds
+			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
+			// use the interval bounds directly from exp.x
+			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			return y;
+			};
 
-			/*cout << "x(" << iteration << ") = [" << X0.x(0) << ", " << X0.x(1) << "] - "
-				<< h0 << "[" << -d(0) << ", " << -d(1) << "] = [" << X1.x(0) << ", " << X1.x(1) << "]" << endl;*/
+		do {
+			d = gf(xNext.x, ud1, ud2);
+			d = d * -1;
+			h = calculateH(h, d, xNext.x);
 
-			X1.fit_fun(ff);
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
-
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
+			i++;
+			if (i == 15) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
 			}
+		} while (norm(xNext.x - x.x) >= epsilon);
 
-			X0 = X1;
-			//iteration++;
-		}
-
-		delete[] ab;
-		X0.flag = 1;
-		return X0;
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution SD(...):\n" + ex_info);
 	}
 }
 
-solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2) {
 	try {
-		solution X0(x0), X1;
-		X0.fit_fun(ff);
-		matrix d(X0.x), g0, g1;
+		solution Xopt;
+		solution x, xNext;
+		matrix d, g0, g1;
 		double beta;
-		double* ab = new double[2] { 0, h0 };
-		g0 = X0.grad(gf);
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		bool constH = h0 != 0.;
+
+		g0 = gf(x0, ud1, ud2);
 		d = -g0;
 
-		while(true) {
-			X1.x = X0.x + h0 * d;
-			X1.fit_fun(ff);
+		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
+			if (constH) return hPrev;
+
+			matrix ud(2, 2);
+			ud(0, 0) = xPrev(0);
+			ud(0, 1) = xPrev(1);
+			ud(1, 0) = dPrev(0);
+			ud(1, 1) = dPrev(1);
+
+			// expansion returns a solution with a 2x1 matrix containing interval bounds
+			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
+			// use the interval bounds directly from exp.x
+			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			return y;
+			};
+
+		do {
+			h = calculateH(h, d, xNext.x);
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
 
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
-
-			g1 = X1.grad(gf);
-
-			// Compute beta using Fletcher-Reeves formula
-			beta = pow(norm(g1), 2) / pow(norm(g0), 2);
-
-			// Update direction
+			g1 = gf(xNext.x, ud1, ud2);
+			beta = pow(norm(g1), 2) / pow(norm(g0), 2);  // Fletcher-Reeves
 			d = -g1 + beta * d;
-
-			X0 = X1;
 			g0 = g1;
-		}
 
-		delete[] ab;
-		return X0;
+			i++;
+			if (i == 15) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
+			}
+		} while (norm(xNext.x - x.x) >= epsilon);
+
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution CG(...):\n" + ex_info);
 	}
 }
 
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
-	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon,
+	int Nmax, matrix ud1, matrix ud2) {
 	try {
-		solution X0(x0), X1;
-		X0.fit_fun(ff, ud1, ud2);
-		matrix d(X0.x);
-		double* ab = new double[2] { 0, h0 };
+		solution Xopt;
+		solution x, xNext;
+		matrix d;
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		bool constH = h0 != 0.;
 
-		while (true) {
-			// Compute Newton direction using Hessian
-			matrix H = X0.hess(Hf, ud1, ud2);
-			matrix g = X0.grad(gf, ud1, ud2);
+		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
+			if (constH) return hPrev;
+
+			matrix ud(2, 2);
+			ud(0, 0) = xPrev(0);
+			ud(0, 1) = xPrev(1);
+			ud(1, 0) = dPrev(0);
+			ud(1, 1) = dPrev(1);
+
+			// expansion returns a solution with a 2x1 matrix containing interval bounds
+			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, NULL, ud);
+			// use the interval bounds directly from exp.x
+			const auto y = golden(ff, exp.x(0, 0), exp.x(1, 0), 0.001, Nmax, NULL, ud).x(0);
+			return y;
+			};
+
+		do {
+			matrix H = xNext.hess(Hf, ud1, ud2);
+			matrix g = xNext.grad(gf, ud1, ud2);
 			d = -inv(H) * g;
 
-			if (norm(d) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
-
-			X1.x = X0.x + h0 * d;
-			X1.fit_fun(ff, ud1, ud2);
+			h = calculateH(h, d, xNext.x);
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
-
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
+			i++;
+			if (i == 15) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
 			}
+		} while (norm(xNext.x - x.x) >= epsilon);
 
-			X0 = X1;
-		}
-
-		delete[] ab;
-		return X0;
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution Newton(...):\n" + ex_info);
 	}
 }
