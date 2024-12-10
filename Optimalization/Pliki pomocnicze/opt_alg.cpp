@@ -557,15 +557,12 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	}
 }
 
-// Separate method for calculating step size
 double calculateStepSize(bool constH, matrix(*ff)(matrix, matrix, matrix), int Nmax,
 	double hPrev, const matrix& dPrev, const matrix& xPrev) {
 	if (constH) return hPrev;
 
-	// Create a 2x2 matrix for ud
 	matrix ud(2, 2, 0.0);
 
-	// Safely check matrix sizes before accessing
 	if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
 		get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
 		ud(0, 0) = xPrev(0, 0);
@@ -574,10 +571,7 @@ double calculateStepSize(bool constH, matrix(*ff)(matrix, matrix, matrix), int N
 		ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
 	}
 
-	// expansion returns a solution with a 2x1 matrix containing interval bounds
 	solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
-
-	// use the interval bounds directly from exp.x
 	return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
 }
 
@@ -591,8 +585,8 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		x.x = x0;
 		xNext.x = x0;
 		int i = 0;
-		d = gf(x0, matrix(1, 1, 0.0), matrix(1, 1, 0.0)); // Pass null matrices as matrix(1,1,0.0)
-		d = -d; // Use matrix negation operator
+		//d = gf(x0, matrix(1, 1, 0.0), matrix(1, 1, 0.0)); // Pass null matrices as matrix(1,1,0.0)
+		//d = -d; // Use matrix negation operator
 		bool constH;
 		if (h == 0)
 			constH = false;
@@ -601,7 +595,7 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 
 		do {
 			matrix d = xNext.grad(gf);
-			d = -d; // Use matrix negation operator
+			d = -d;
 			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);
 			x = xNext;
 			xNext.x = x.x + d * h;
@@ -611,7 +605,7 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			}
 
 			i++;
-			if (i == 15) {
+			if (i == 20) {
 				Xopt = xNext;
 				Xopt.fit_fun(ff);
 				return Xopt;
@@ -638,36 +632,17 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		x.x = x0;
 		xNext.x = x0;
 		int i = 0;
-		bool constH = h0 != 0.;
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else
+			constH = true;
 
 		g0 = gf(x0, ud1, ud2);
 		d = -g0;
 
-		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
-			if (constH) return hPrev;
-
-			// Create a 2x2 matrix for ud
-			matrix ud(2, 2, 0.0);
-
-			// Safely check matrix sizes before accessing
-			if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
-				get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
-				ud(0, 0) = xPrev(0, 0);
-				ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
-				ud(1, 0) = dPrev(0, 0);
-				ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
-			}
-
-			// expansion returns a solution with a 2x1 matrix containing interval bounds
-			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
-
-			// use the interval bounds directly from exp.x
-			return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
-		};
-
-
 		do {
-			h = calculateH(h, d, xNext.x);
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);
 			x = xNext;
 			xNext.x = x.x + d * h;
 
@@ -676,12 +651,12 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			}
 
 			matrix g1 = xNext.grad(gf);
-			beta = pow(norm(g1), 2) / pow(norm(g0), 2);  // Fletcher-Reeves
+			beta = pow(norm(g1), 2) / pow(norm(g0), 2);  
 			d = -g1 + beta * d;
 			g0 = g1;
 
 			i++;
-			if (i == 15) {
+			if (i == 20) {
 				Xopt = xNext;
 				Xopt.fit_fun(ff);
 				return Xopt;
@@ -708,37 +683,18 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 		x.x = x0;
 		xNext.x = x0;
 		int i = 0;
-		bool constH = h0 != 0.;
-
-		auto calculateH = [constH, ff, Nmax, epsilon](const double hPrev, const matrix& dPrev, const matrix& xPrev) {
-			if (constH) return hPrev;
-
-			// Create a 2x2 matrix for ud
-			matrix ud(2, 2, 0.0);
-
-			// Safely check matrix sizes before accessing
-			if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
-				get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
-				ud(0, 0) = xPrev(0, 0);
-				ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
-				ud(1, 0) = dPrev(0, 0);
-				ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
-			}
-
-			// expansion returns a solution with a 2x1 matrix containing interval bounds
-			solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
-
-			// use the interval bounds directly from exp.x
-			return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
-		};
-
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else
+			constH = true;
 
 		do {
 			matrix H = xNext.hess(Hf);
 			matrix g = xNext.grad(gf);
 			d = -inv(H) * g;
 
-			h = calculateH(h, d, xNext.x);
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);;
 			x = xNext;
 			xNext.x = x.x + d * h;
 
@@ -746,7 +702,7 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 				throw string("Max fcalls");
 			}
 			i++;
-			if (i == 15) {
+			if (i == 20) {
 				Xopt = xNext;
 				Xopt.fit_fun(ff);
 				return Xopt;
