@@ -310,19 +310,6 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2) {
 	return y;
 }
 
-matrix ff4T(matrix x, matrix ud1, matrix ud2) {
-	matrix y;
-	y = pow(x(0) + 2.0 * x(1) - 7.0, 2) + pow(2.0 * x(0) + x(1) - 5.0, 2);
-	return y;
-}
-
-matrix gradient4T(matrix x, matrix ud1, matrix ud2) {
-	matrix g(2);
-	g(0) = 2 * (x(0) + 2 * x(1) - 7) + 4 * (2 * x(0) + x(1) - 5);
-	g(1) = 4 * (x(0) + 2 * x(1) - 7) + 2 * (2 * x(0) + x(1) - 5);
-	return g;
-}
-
 matrix ff4SD(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
 	y = pow(x(0), 2) + pow(x(1), 2);
@@ -358,5 +345,42 @@ matrix gradientNewton(matrix x, matrix ud1, matrix ud2) {
 matrix ff4Golden(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
 	y = x + 1 / pow(x, 2);
+	return y;
+}
+
+matrix ff4T(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0) + 2.0 * x(1) - 7.0, 2) + pow(2.0 * x(0) + x(1) - 5.0, 2);
+	return y;
+}
+
+matrix gradient4T(matrix x, matrix ud1, matrix ud2) {
+	matrix g(2);
+	g(0) = 2 * (x(0) + 2 * x(1) - 7) + 4 * (2 * x(0) + x(1) - 5);
+	g(1) = 4 * (x(0) + 2 * x(1) - 7) + 2 * (2 * x(0) + x(1) - 5);
+	return g;
+}
+
+matrix gf4T(matrix x, matrix ud1, matrix ud2) {
+	double valueX1 = 10 * x(0) + 8 * x(1) - 34;
+	double valueX2 = 8 * x(0) + 10 * x(1) - 38;
+	matrix y(2, new double[2] {valueX1, valueX2});
+	return y;
+}
+
+matrix hf4T(matrix x, matrix ud1, matrix ud2) {
+	double x0 = x(0);
+	double x1 = x(1);
+
+	double h00 = 10;
+	double h10 = 8;
+	double h01 = 8;
+	double h11 = 10;
+
+	matrix y(2, 2);
+	y(0, 0) = h00;
+	y(1, 0) = h10;
+	y(0, 1) = h01;
+	y(1, 1) = h11;
 	return y;
 }

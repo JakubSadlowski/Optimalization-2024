@@ -25,3 +25,5 @@ matrix gradientSD(matrix, matrix = NAN, matrix = NAN);
 matrix ff4Newton(matrix, matrix = NAN, matrix = NAN);
 matrix gradientNewton(matrix, matrix = NAN, matrix = NAN);
 matrix ff4Golden(matrix, matrix = NAN, matrix = NAN);
+matrix gf4T(matrix, matrix = NAN, matrix = NAN);
+matrix hf4T(matrix, matrix = NAN, matrix = NAN);

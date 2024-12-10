@@ -557,142 +557,163 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	}
 }
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+double calculateStepSize(bool constH, matrix(*ff)(matrix, matrix, matrix), int Nmax,
+	double hPrev, const matrix& dPrev, const matrix& xPrev) {
+	if (constH) return hPrev;
+
+	matrix ud(2, 2, 0.0);
+
+	if (get_size(xPrev)[0] > 0 && get_size(xPrev)[1] > 0 &&
+		get_size(dPrev)[0] > 0 && get_size(dPrev)[1] > 0) {
+		ud(0, 0) = xPrev(0, 0);
+		ud(0, 1) = get_size(xPrev)[0] > 1 ? xPrev(1, 0) : 0.0;
+		ud(1, 0) = dPrev(0, 0);
+		ud(1, 1) = get_size(dPrev)[0] > 1 ? dPrev(1, 0) : 0.0;
+	}
+
+	solution exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, matrix(1, 1, 0.0), ud);
+	return golden(ff, exp.x(0), exp.x(1), 0.001, Nmax, matrix(1, 1, 0.0), ud).x(0);
+}
+
+solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2) {
 	try {
-		//int iteration = 0;
-		solution X0(x0), X1;
-		X0.fit_fun(ff);
-		matrix d(X0.x);
-		double* ab = new double[2] { 0, h0 };
+		solution Xopt;
+		solution x, xNext;
+		matrix d;
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		//d = gf(x0, matrix(1, 1, 0.0), matrix(1, 1, 0.0)); // Pass null matrices as matrix(1,1,0.0)
+		//d = -d; // Use matrix negation operator
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else 
+			constH = true;
 
-		while(true) {
-			d = -X0.grad(gf);
-
-			// Check if gradient is close to zero
-			if (norm(d) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
-
-			X1.x = X0.x + h0 * d;
-
-			/*cout << "x(" << iteration << ") = [" << X0.x(0) << ", " << X0.x(1) << "] - "
-				<< h0 << "[" << -d(0) << ", " << -d(1) << "] = [" << X1.x(0) << ", " << X1.x(1) << "]" << endl;*/
-
-			X1.fit_fun(ff);
+		do {
+			matrix d = xNext.grad(gf);
+			d = -d;
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
 
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
+			i++;
+			if (i == 20) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
 			}
+		} while (norm(xNext.x - x.x) >= epsilon);
 
-			X0 = X1;
-			//iteration++;
-		}
-
-		delete[] ab;
-		X0.flag = 1;
-		return X0;
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution SD(...):\n" + ex_info);
 	}
 }
 
-solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2) {
 	try {
-		solution X0(x0), X1;
-		X0.fit_fun(ff);
-		matrix d(X0.x), g0, g1;
+		solution Xopt;
+		solution x, xNext;
+		matrix d, g0, g1;
 		double beta;
-		double* ab = new double[2] { 0, h0 };
-		g0 = X0.grad(gf);
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else
+			constH = true;
+
+		g0 = gf(x0, ud1, ud2);
 		d = -g0;
 
-		while(true) {
-			X1.x = X0.x + h0 * d;
-			X1.fit_fun(ff);
+		do {
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
 
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
-
-			g1 = X1.grad(gf);
-
-			// Compute beta using Fletcher-Reeves formula
-			beta = pow(norm(g1), 2) / pow(norm(g0), 2);
-
-			// Update direction
+			matrix g1 = xNext.grad(gf);
+			beta = pow(norm(g1), 2) / pow(norm(g0), 2);  
 			d = -g1 + beta * d;
-
-			X0 = X1;
 			g0 = g1;
-		}
 
-		delete[] ab;
-		return X0;
+			i++;
+			if (i == 20) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
+			}
+		} while (norm(xNext.x - x.x) >= epsilon);
+
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution CG(...):\n" + ex_info);
 	}
 }
 
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
-	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
-{
+	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon,
+	int Nmax, matrix ud1, matrix ud2) {
 	try {
-		solution X0(x0), X1;
-		X0.fit_fun(ff, ud1, ud2);
-		matrix d(X0.x);
-		double* ab = new double[2] { 0, h0 };
+		solution Xopt;
+		solution x, xNext;
+		matrix d;
+		double h = h0;
+		x.x = x0;
+		xNext.x = x0;
+		int i = 0;
+		bool constH;
+		if (h == 0)
+			constH = false;
+		else
+			constH = true;
 
-		while (true) {
-			// Compute Newton direction using Hessian
-			matrix H = X0.hess(Hf, ud1, ud2);
-			matrix g = X0.grad(gf, ud1, ud2);
+		do {
+			matrix H = xNext.hess(Hf);
+			matrix g = xNext.grad(gf);
 			d = -inv(H) * g;
 
-			if (norm(d) < epsilon) {
-				X0.flag = 1;
-				break;
-			}
-
-			X1.x = X0.x + h0 * d;
-			X1.fit_fun(ff, ud1, ud2);
+			h = calculateStepSize(constH, ff, Nmax, h, d, xNext.x);;
+			x = xNext;
+			xNext.x = x.x + d * h;
 
 			if (solution::f_calls > Nmax) {
-				X0.flag = 0;
-				throw "Maximum number of function calls exceeded";
+				throw string("Max fcalls");
 			}
-
-			if (norm(X1.x - X0.x) < epsilon) {
-				X0.flag = 1;
-				break;
+			i++;
+			if (i == 20) {
+				Xopt = xNext;
+				Xopt.fit_fun(ff);
+				return Xopt;
 			}
+		} while (norm(xNext.x - x.x) >= epsilon);
 
-			X0 = X1;
-		}
-
-		delete[] ab;
-		return X0;
+		Xopt = xNext;
+		Xopt.fit_fun(ff);
+		return Xopt;
 	}
-	catch (string ex_info)
-	{
+	catch (string ex_info) {
 		throw ("solution Newton(...):\n" + ex_info);
 	}
 }
