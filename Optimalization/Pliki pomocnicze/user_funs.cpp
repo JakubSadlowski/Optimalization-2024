@@ -384,3 +384,29 @@ matrix hf4T(matrix x, matrix ud1, matrix ud2) {
 	y(1, 1) = h11;
 	return y;
 }
+
+matrix ff5T(matrix x, matrix ud1, matrix ud2) {
+	double x1 = x(0);
+	double x2 = x(1);
+	double a = ud1(0);
+
+	matrix y(1, 1);
+	y(0) = a * ((x1 - 2.0) * (x1 - 2.0) + (x2 - 2.0) * (x2 - 2.0));
+	return y;
+}
+
+matrix ff5T2(matrix x, matrix ud1, matrix ud2) {
+	double x1 = x(0);
+	double x2 = x(1);
+	double a = ud1(0);
+
+	matrix y(1, 1);
+	y(0) = (1.0 / a) * ((x1 + 2.0) * (x1 + 2.0) + (x2 + 2.0) * (x2 + 2.0));
+	return y;
+}
+
+matrix ff5Test(matrix x, matrix ud1, matrix ud2) {
+	matrix y;
+	y = pow(x(0), 2) + pow(x(1), 2);
+	return y;
+}
