@@ -788,30 +788,24 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			matrix temp(2, 1);
 
 			for (int j = 0; j < n; ++j) {
-				// Wybierz odpowiedni punkt początkowy
 				const matrix& pj = (j == 0) ? p0 : matrix(p[j - 1]);
 
-				// Przygotuj ud2 dla golden i expansion
 				matrix ud2_local(n, 2);
 				ud2_local(0, 0) = pj(0);
 				ud2_local(1, 0) = pj(1);
 				ud2_local(0, 1) = d(0, j);
 				ud2_local(1, 1) = d(1, j);
 
-				// Znajdź zakres dla golden method używając expansion
 				solution exp_range = expansion(ff, h, 0.5, 1.2, Nmax, ud1, ud2_local);
 
-				// Znajdź minimum używając golden
 				solution h_sol = golden(ff, exp_range.x(0), exp_range.x(1), 0.001, Nmax, ud1, ud2_local);
 				h = h_sol.x(0);
 
-				// Aktualizuj punkt
 				temp = pj + h * matrix(get_col(d, j));
 				p(0, j) = temp(0);
 				p(1, j) = temp(1);
 			}
 
-			// Sprawdź warunek stopu
 			matrix diff = p[n - 1] - x;
 			if (norm(diff) < epsilon) {
 				Xopt = x;
@@ -820,33 +814,27 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				return Xopt;
 			}
 
-			// Aktualizuj kierunki
 			for (int j = 0; j < n - 1; ++j) {
 				temp = d[j + 1];
 				d(0, j) = temp(0);
 				d(1, j) = temp(1);
 			}
 
-			// Oblicz nowy kierunek
 			temp = p[n - 1] - p[0];
 			d(0, n - 1) = temp(0);
 			d(1, n - 1) = temp(1);
 
-			// Przygotuj ud2 dla ostatniego przeszukiwania
 			matrix ud2_final(n, 2);
 			ud2_final(0, 0) = p(0, n - 1);
 			ud2_final(1, 0) = p(1, n - 1);
 			ud2_final(0, 1) = d(0, n - 1);
 			ud2_final(1, 1) = d(1, n - 1);
 
-			// Znajdź zakres dla ostatniego golden
 			solution exp_range = expansion(ff, h, 0.5, 1.2, Nmax, ud1, ud2_final);
 
-			// Wykonaj ostatnie przeszukiwanie golden
 			solution h_sol = golden(ff, exp_range.x(0), exp_range.x(1), 0.001, Nmax, ud1, ud2_final);
 			h = h_sol.x(0);
 
-			// Aktualizuj punkt końcowy
 			x = p[n - 1] + h * matrix(get_col(d, n - 1));
 
 			i++;
