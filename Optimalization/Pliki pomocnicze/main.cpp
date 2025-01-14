@@ -489,7 +489,50 @@ void lab4()
 
 void lab5()
 {
+	// Initialize parameters
+	double epsilon = 1e-3;                // Accuracy
+	int Nmax = 1000;                      // Maximum iterations
+	matrix ud1(1, 1), ud2(1, 1);         // User data matrices
+	ud1(0) = 1.0;                        // Parameter 'a' for test functions
 
+	// Test starting points
+	double x0_arr[] = { 0, 0 };            // Starting point [0,0]
+	matrix x0(2, x0_arr);
+
+	cout << "Testing Powell's Method" << endl;
+	cout << "----------------------" << endl;
+
+	// Test with first function
+	cout << "\nTesting function f1(x1,x2) = a((x1-2)^2 + (x2-2)^2)" << endl;
+	cout << "Starting point: " << x0 << endl;
+	cout << "Parameter a = " << ud1(0) << endl;
+
+	solution::clear_calls(); // Clear function calls counter
+	solution opt1 = Powell(ff5T, x0, epsilon, Nmax, ud1, ud2);
+	cout << "\nResults for f1:" << endl;
+	cout << opt1 << endl;
+
+	// Test with second function
+	cout << "\nTesting function f2(x1,x2) = 1/a((x1+2)^2 + (x2+2)^2)" << endl;
+	cout << "Starting point: " << x0 << endl;
+	cout << "Parameter a = " << ud1(0) << endl;
+
+	solution::clear_calls(); // Clear function calls counter
+	solution opt2 = Powell(ff5T2, x0, epsilon, Nmax, ud1, ud2);
+	cout << "\nResults for f2:" << endl;
+	cout << opt2 << endl;
+
+	// Test with different starting point
+	double x0_arr2[] = { 1, 1 };           // Different starting point [1,1]
+	matrix x0_2(2, x0_arr2);
+
+	cout << "\nTesting with different starting point [1,1]" << endl;
+	cout << "Testing function f1(x1,x2) = a((x1-2)^2 + (x2-2)^2)" << endl;
+
+	solution::clear_calls(); // Clear function calls counter
+	solution opt3 = Powell(ff5T, x0_2, epsilon, Nmax, ud1, ud2);
+	cout << "\nResults for f1 with new starting point:" << endl;
+	cout << opt3 << endl;
 }
 
 void lab6()
