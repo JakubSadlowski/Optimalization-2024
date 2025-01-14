@@ -777,91 +777,83 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 {
 	try {
 		solution Xopt;
-		int n = get_len(x0); // dimension of the problem
-		matrix D = ident_mat(n); // initial directions set as unit vectors
-		matrix* d = new matrix[n]; // array to store directions
-		// Initialize directions
-		for (int i = 0; i < n; i++)
-			d[i] = get_col(D, i);
+		const int n = get_len(x0);
+		matrix x = x0, p(n, n);
+		matrix d = ident_mat(n);
+		double h = 0.1;
+		int i = 0;
 
-		solution X0(x0); // starting point
-		solution X1; // next point
-		int i = 0; // iteration counter
+		do {
+			matrix p0 = x;
+			matrix temp(2, 1);
 
-		while (true) {
-			matrix P0 = X0.x; // store initial point of iteration
-			solution P = X0;
+			for (int j = 0; j < n; ++j) {
+				// Wybierz odpowiedni punkt początkowy
+				const matrix& pj = (j == 0) ? p0 : matrix(p[j - 1]);
 
-			// Line minimization in each direction
-			for (int j = 0; j < n; j++) {
-				// Tworzenie punktu startowego i końcowego dla golden
-				solution Xa(-10.0);
-				solution Xb(10.0);
+				// Przygotuj ud2 dla golden i expansion
+				matrix ud2_local(n, 2);
+				ud2_local(0, 0) = pj(0);
+				ud2_local(1, 0) = pj(1);
+				ud2_local(0, 1) = d(0, j);
+				ud2_local(1, 1) = d(1, j);
 
-				// Tworzymy punkt tymczasowy do obliczenia wartości funkcji
-				matrix tmp = P.x + Xa.x * d[j];
-				solution Xtmp(tmp);
-				Xa.y = Xtmp.fit_fun(ff, ud1, ud2);
+				// Znajdź zakres dla golden method używając expansion
+				solution exp_range = expansion(ff, h, 0.5, 1.2, Nmax, ud1, ud2_local);
 
-				tmp = P.x + Xb.x * d[j];
-				Xtmp.x = tmp;
-				Xb.y = Xtmp.fit_fun(ff, ud1, ud2);
+				// Znajdź minimum używając golden
+				solution h_sol = golden(ff, exp_range.x(0), exp_range.x(1), 0.001, Nmax, ud1, ud2_local);
+				h = h_sol.x(0);
 
-				// Wykonujemy golden
-				solution h = golden(ff, -10, 10, epsilon, Nmax - solution::f_calls, ud1, ud2);
-
-				if (h.flag == 0) { // Max iterations exceeded during line search
-					X0.flag = 0;
-					delete[] d;
-					return X0;
-				}
-
-				// Update point after line search
-				P.x = P.x + h.x * d[j];
+				// Aktualizuj punkt
+				temp = pj + h * matrix(get_col(d, j));
+				p(0, j) = temp(0);
+				p(1, j) = temp(1);
 			}
 
-			// Check convergence
-			matrix diff = P.x - X0.x;
+			// Sprawdź warunek stopu
+			matrix diff = p[n - 1] - x;
 			if (norm(diff) < epsilon) {
-				P.fit_fun(ff, ud1, ud2);
-				P.flag = 1;
-				delete[] d;
-				return P;
+				Xopt = x;
+				Xopt.fit_fun(ff, ud1, ud2);
+				Xopt.flag = 1;
+				return Xopt;
 			}
 
-			// Update directions
-			for (int j = 0; j < n - 1; j++)
-				d[j] = d[j + 1];
-
-			// New direction
-			d[n - 1] = P.x - P0;
-
-			// Normalize new direction
-			if (norm(d[n - 1]) > 0)
-				d[n - 1] = d[n - 1] / norm(d[n - 1]);
-
-			// Final line search in new direction
-			solution h = golden(ff, -10, 10, epsilon, Nmax - solution::f_calls, ud1, ud2);
-
-			if (h.flag == 0) { // Max iterations exceeded
-				X0.flag = 0;
-				delete[] d;
-				return X0;
+			// Aktualizuj kierunki
+			for (int j = 0; j < n - 1; ++j) {
+				temp = d[j + 1];
+				d(0, j) = temp(0);
+				d(1, j) = temp(1);
 			}
 
-			// Update solution for next iteration
-			X1.x = P.x + h.x * d[n - 1];
+			// Oblicz nowy kierunek
+			temp = p[n - 1] - p[0];
+			d(0, n - 1) = temp(0);
+			d(1, n - 1) = temp(1);
 
-			// Check function calls limit
-			if (solution::f_calls > Nmax) {
-				X1.flag = 0;
-				delete[] d;
-				return X1;
-			}
+			// Przygotuj ud2 dla ostatniego przeszukiwania
+			matrix ud2_final(n, 2);
+			ud2_final(0, 0) = p(0, n - 1);
+			ud2_final(1, 0) = p(1, n - 1);
+			ud2_final(0, 1) = d(0, n - 1);
+			ud2_final(1, 1) = d(1, n - 1);
 
-			X0 = X1;
+			// Znajdź zakres dla ostatniego golden
+			solution exp_range = expansion(ff, h, 0.5, 1.2, Nmax, ud1, ud2_final);
+
+			// Wykonaj ostatnie przeszukiwanie golden
+			solution h_sol = golden(ff, exp_range.x(0), exp_range.x(1), 0.001, Nmax, ud1, ud2_final);
+			h = h_sol.x(0);
+
+			// Aktualizuj punkt końcowy
+			x = p[n - 1] + h * matrix(get_col(d, n - 1));
+
 			i++;
-		}
+
+		} while (Nmax > solution::f_calls);
+
+		throw string("Max fcalls");
 	}
 
 	catch (string ex_info)
