@@ -775,13 +775,15 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try {
+	try
+	{
 		solution Xopt;
 		const int n = get_len(x0);
 		matrix x = x0, p(n, n);
 		matrix d = ident_mat(n);
 		double h = 0.1;
 		int i = 0;
+<<<<<<< Updated upstream
 
 		do {
 			matrix p0 = x;
@@ -817,16 +819,59 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				Xopt = x;
 				Xopt.fit_fun(ff, ud1, ud2);
 				Xopt.flag = 1;
+=======
+		auto calculateH = [ ff, Nmax, epsilon, ud1, n](const double hPrev, const matrix& p, const matrix& d) {
+			auto ud2 = matrix(n, 2);
+			//źle
+			//ud2[0] = p;
+			//dobrze
+			ud2(0, 0) = p(0);
+			ud2(1, 0) = p(1);
+			ud2(0, 1) = d(0);
+			ud2(1, 1) = d(1);
+
+			const auto exp = expansion(ff, hPrev, 0.5, 1.2, Nmax, ud1, ud2);
+			const auto y = golden(ff, exp[0], exp[1], 0.001, Nmax, ud1, ud2).x(0);
+			cout << y << endl;
+
+			delete[] exp;
+			return y;
+			};
+		do {
+			matrix p0 = x;
+			matrix temp(2, 1);
+			for (int j = 0; j < n; ++j) {
+				const auto& pj = (j - 1 < 0) ? p0 : p[j - 1];
+
+				h = calculateH(h, pj, d[j]);
+
+				temp= pj + h * d[j];
+				p(0, j) = temp(0);
+				p(1, j) = temp(1);
+			}
+			if (norm(p[n - 1] - x) < epsilon) {
+				Xopt = x;
+				Xopt.fit_fun(ff, ud1);
+>>>>>>> Stashed changes
 				return Xopt;
 			}
+			for (int j = 0; j < n - 1; ++j) {
 
+<<<<<<< Updated upstream
 			// Aktualizuj kierunki
 			for (int j = 0; j < n - 1; ++j) {
+=======
+>>>>>>> Stashed changes
 				temp = d[j + 1];
 				d(0, j) = temp(0);
 				d(1, j) = temp(1);
 			}
+			d[n - 1] = p[n - 1] - p[0];
+			temp = p[n - 1] - p[0];
+			d(0, n - 1) = temp(0);
+			d(1, n - 1) = temp(1);
 
+<<<<<<< Updated upstream
 			// Oblicz nowy kierunek
 			temp = p[n - 1] - p[0];
 			d(0, n - 1) = temp(0);
@@ -853,9 +898,17 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 
 		} while (Nmax > solution::f_calls);
 
+=======
+			h = calculateH(h, p[n - 1], d[n - 1]);
+			x = p[n - 1] + h * d[n - 1];
+			i++;
+			//if (i == 5) exit(0);
+			//std::cout << i << '\n';
+		}
+		while (Nmax > solution::f_calls);
+>>>>>>> Stashed changes
 		throw string("Max fcalls");
 	}
-
 	catch (string ex_info)
 	{
 		throw ("solution Powell(...):\n" + ex_info);
