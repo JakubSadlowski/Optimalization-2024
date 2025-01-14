@@ -775,13 +775,95 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	try
-	{
+	try {
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		int n = get_len(x0); // dimension of the problem
+		matrix D = ident_mat(n); // initial directions set as unit vectors
+		matrix* d = new matrix[n]; // array to store directions
+		// Initialize directions
+		for (int i = 0; i < n; i++)
+			d[i] = get_col(D, i);
 
-		return Xopt;
+		solution X0(x0); // starting point
+		solution X1; // next point
+		int i = 0; // iteration counter
+
+		while (true) {
+			matrix P0 = X0.x; // store initial point of iteration
+			solution P = X0;
+
+			// Line minimization in each direction
+			for (int j = 0; j < n; j++) {
+				// Tworzenie punktu startowego i końcowego dla golden
+				solution Xa(-10.0);
+				solution Xb(10.0);
+
+				// Tworzymy punkt tymczasowy do obliczenia wartości funkcji
+				matrix tmp = P.x + Xa.x * d[j];
+				solution Xtmp(tmp);
+				Xa.y = Xtmp.fit_fun(ff, ud1, ud2);
+
+				tmp = P.x + Xb.x * d[j];
+				Xtmp.x = tmp;
+				Xb.y = Xtmp.fit_fun(ff, ud1, ud2);
+
+				// Wykonujemy golden
+				solution h = golden(ff, -10, 10, epsilon, Nmax - solution::f_calls, ud1, ud2);
+
+				if (h.flag == 0) { // Max iterations exceeded during line search
+					X0.flag = 0;
+					delete[] d;
+					return X0;
+				}
+
+				// Update point after line search
+				P.x = P.x + h.x * d[j];
+			}
+
+			// Check convergence
+			matrix diff = P.x - X0.x;
+			if (norm(diff) < epsilon) {
+				P.fit_fun(ff, ud1, ud2);
+				P.flag = 1;
+				delete[] d;
+				return P;
+			}
+
+			// Update directions
+			for (int j = 0; j < n - 1; j++)
+				d[j] = d[j + 1];
+
+			// New direction
+			d[n - 1] = P.x - P0;
+
+			// Normalize new direction
+			if (norm(d[n - 1]) > 0)
+				d[n - 1] = d[n - 1] / norm(d[n - 1]);
+
+			// Final line search in new direction
+			solution h = golden(ff, -10, 10, epsilon, Nmax - solution::f_calls, ud1, ud2);
+
+			if (h.flag == 0) { // Max iterations exceeded
+				X0.flag = 0;
+				delete[] d;
+				return X0;
+			}
+
+			// Update solution for next iteration
+			X1.x = P.x + h.x * d[n - 1];
+
+			// Check function calls limit
+			if (solution::f_calls > Nmax) {
+				X1.flag = 0;
+				delete[] d;
+				return X1;
+			}
+
+			X0 = X1;
+			i++;
+		}
 	}
+
 	catch (string ex_info)
 	{
 		throw ("solution Powell(...):\n" + ex_info);
